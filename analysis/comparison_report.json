@@ -1,0 +1,1246 @@
+{
+  "title": "Raise y_our glass comparison",
+  "ref_summary": {
+    "key": "Ab major",
+    "time_sig": "4/4",
+    "tempo": 140,
+    "note_count": 158,
+    "pitch_range": "60-75",
+    "median_pitch": 68.0,
+    "avg_density": 4.388888888888889
+  },
+  "gen_summary": {
+    "key": "Ab major",
+    "time_sig": "4/4",
+    "tempo": 71.8,
+    "note_count": 217,
+    "pitch_range": "60-82",
+    "median_pitch": 68,
+    "avg_density": 6.027777777777778
+  },
+  "global_pitch_offset": 0.0,
+  "statistics": {
+    "comparison_range": "m1-m36",
+    "measures_compared": 36,
+    "ref_notes_in_range": 158,
+    "gen_notes_in_range": 217,
+    "global_pitch_offset_semitones": 0.0,
+    "octave_error_measures": 2,
+    "severe_mismatch_measures": 10,
+    "density_missing_measures": 0,
+    "density_sparse_measures": 1,
+    "contour_agreement_pct": 100.0,
+    "error_count_by_category": {
+      "note_explosion": 10,
+      "pitch_drift": 9,
+      "wrong_pitch_center": 8,
+      "octave_error": 2,
+      "over_merged": 1,
+      "implausible_interval": 1
+    }
+  },
+  "pitch_mismatches": [
+    {
+      "measure": 2,
+      "ref_pitches": [
+        65,
+        63,
+        68,
+        68,
+        68,
+        70,
+        68
+      ],
+      "gen_pitches": [
+        70,
+        60,
+        70,
+        60,
+        70,
+        68
+      ],
+      "ref_median": 68,
+      "gen_median": 69.0,
+      "delta_semitones": 1.0,
+      "likely_octave_error": false,
+      "severity": "minor"
+    },
+    {
+      "measure": 5,
+      "ref_pitches": [
+        63,
+        65,
+        63,
+        68,
+        68
+      ],
+      "gen_pitches": [
+        68,
+        60,
+        70,
+        60
+      ],
+      "ref_median": 65,
+      "gen_median": 64.0,
+      "delta_semitones": -1.0,
+      "likely_octave_error": false,
+      "severity": "minor"
+    },
+    {
+      "measure": 7,
+      "ref_pitches": [
+        65,
+        63,
+        68,
+        68,
+        68,
+        70,
+        68
+      ],
+      "gen_pitches": [
+        68,
+        62,
+        65,
+        63,
+        61
+      ],
+      "ref_median": 68,
+      "gen_median": 63,
+      "delta_semitones": -5,
+      "likely_octave_error": false,
+      "severity": "moderate"
+    },
+    {
+      "measure": 8,
+      "ref_pitches": [
+        70,
+        68,
+        68,
+        63,
+        65
+      ],
+      "gen_pitches": [
+        68,
+        64,
+        61,
+        70
+      ],
+      "ref_median": 68,
+      "gen_median": 66.0,
+      "delta_semitones": -2.0,
+      "likely_octave_error": false,
+      "severity": "minor"
+    },
+    {
+      "measure": 10,
+      "ref_pitches": [
+        63,
+        65,
+        63
+      ],
+      "gen_pitches": [
+        60,
+        68,
+        66,
+        68,
+        70,
+        61,
+        68
+      ],
+      "ref_median": 63,
+      "gen_median": 68,
+      "delta_semitones": 5,
+      "likely_octave_error": false,
+      "severity": "moderate"
+    },
+    {
+      "measure": 12,
+      "ref_pitches": [
+        70,
+        68,
+        63,
+        65,
+        68,
+        68
+      ],
+      "gen_pitches": [
+        60,
+        67,
+        63,
+        61,
+        63
+      ],
+      "ref_median": 68.0,
+      "gen_median": 63,
+      "delta_semitones": -5.0,
+      "likely_octave_error": false,
+      "severity": "moderate"
+    },
+    {
+      "measure": 13,
+      "ref_pitches": [
+        68,
+        70,
+        68,
+        68,
+        70
+      ],
+      "gen_pitches": [
+        67
+      ],
+      "ref_median": 68,
+      "gen_median": 67,
+      "delta_semitones": -1,
+      "likely_octave_error": false,
+      "severity": "minor"
+    },
+    {
+      "measure": 14,
+      "ref_pitches": [
+        72,
+        68,
+        72
+      ],
+      "gen_pitches": [
+        67,
+        65,
+        63,
+        60
+      ],
+      "ref_median": 72,
+      "gen_median": 64.0,
+      "delta_semitones": -8.0,
+      "likely_octave_error": false,
+      "severity": "severe"
+    },
+    {
+      "measure": 15,
+      "ref_pitches": [
+        70,
+        68,
+        68,
+        70
+      ],
+      "gen_pitches": [
+        60,
+        68,
+        71,
+        67
+      ],
+      "ref_median": 69.0,
+      "gen_median": 67.5,
+      "delta_semitones": -1.5,
+      "likely_octave_error": false,
+      "severity": "minor"
+    },
+    {
+      "measure": 16,
+      "ref_pitches": [
+        72,
+        70,
+        68,
+        70,
+        68,
+        65,
+        63
+      ],
+      "gen_pitches": [
+        67,
+        65,
+        63,
+        65,
+        60,
+        70
+      ],
+      "ref_median": 68,
+      "gen_median": 65.0,
+      "delta_semitones": -3.0,
+      "likely_octave_error": false,
+      "severity": "moderate"
+    },
+    {
+      "measure": 17,
+      "ref_pitches": [
+        63,
+        61,
+        60
+      ],
+      "gen_pitches": [
+        68,
+        68,
+        73,
+        75,
+        72,
+        68,
+        73,
+        75
+      ],
+      "ref_median": 61,
+      "gen_median": 72.5,
+      "delta_semitones": 11.5,
+      "likely_octave_error": true,
+      "severity": "severe"
+    },
+    {
+      "measure": 18,
+      "ref_pitches": [
+        68,
+        68,
+        70,
+        68
+      ],
+      "gen_pitches": [
+        72,
+        70,
+        68,
+        73,
+        75,
+        72,
+        68,
+        73,
+        75
+      ],
+      "ref_median": 68.0,
+      "gen_median": 72,
+      "delta_semitones": 4.0,
+      "likely_octave_error": false,
+      "severity": "moderate"
+    },
+    {
+      "measure": 20,
+      "ref_pitches": [
+        70,
+        70,
+        70,
+        68,
+        70,
+        68
+      ],
+      "gen_pitches": [
+        68,
+        63,
+        60,
+        70,
+        60
+      ],
+      "ref_median": 70.0,
+      "gen_median": 63,
+      "delta_semitones": -7.0,
+      "likely_octave_error": false,
+      "severity": "severe"
+    },
+    {
+      "measure": 22,
+      "ref_pitches": [
+        70,
+        70,
+        70,
+        70
+      ],
+      "gen_pitches": [
+        60,
+        70,
+        60,
+        70,
+        60,
+        63,
+        61,
+        70,
+        68,
+        71
+      ],
+      "ref_median": 70.0,
+      "gen_median": 65.5,
+      "delta_semitones": -4.5,
+      "likely_octave_error": false,
+      "severity": "moderate"
+    },
+    {
+      "measure": 23,
+      "ref_pitches": [
+        70,
+        67,
+        63
+      ],
+      "gen_pitches": [
+        71,
+        63,
+        60,
+        70,
+        68,
+        70,
+        68,
+        70
+      ],
+      "ref_median": 67,
+      "gen_median": 69.0,
+      "delta_semitones": 2.0,
+      "likely_octave_error": false,
+      "severity": "minor"
+    },
+    {
+      "measure": 24,
+      "ref_pitches": [
+        75
+      ],
+      "gen_pitches": [
+        70,
+        60,
+        70,
+        67,
+        70,
+        68,
+        70,
+        68,
+        65
+      ],
+      "ref_median": 75,
+      "gen_median": 68,
+      "delta_semitones": -7,
+      "likely_octave_error": false,
+      "severity": "severe"
+    },
+    {
+      "measure": 25,
+      "ref_pitches": [
+        75,
+        72
+      ],
+      "gen_pitches": [
+        65,
+        66,
+        65,
+        62
+      ],
+      "ref_median": 73.5,
+      "gen_median": 65.0,
+      "delta_semitones": -8.5,
+      "likely_octave_error": false,
+      "severity": "severe"
+    },
+    {
+      "measure": 26,
+      "ref_pitches": [
+        68
+      ],
+      "gen_pitches": [
+        63,
+        68,
+        65,
+        63,
+        60,
+        63,
+        61,
+        69,
+        63
+      ],
+      "ref_median": 68,
+      "gen_median": 63,
+      "delta_semitones": -5,
+      "likely_octave_error": false,
+      "severity": "moderate"
+    },
+    {
+      "measure": 27,
+      "ref_pitches": [
+        68,
+        75,
+        72,
+        68,
+        75,
+        72
+      ],
+      "gen_pitches": [
+        65,
+        63,
+        60,
+        62,
+        60,
+        70,
+        70
+      ],
+      "ref_median": 72.0,
+      "gen_median": 63,
+      "delta_semitones": -9.0,
+      "likely_octave_error": false,
+      "severity": "severe"
+    },
+    {
+      "measure": 28,
+      "ref_pitches": [
+        70,
+        75,
+        72,
+        68,
+        75,
+        72
+      ],
+      "gen_pitches": [
+        68,
+        69,
+        61,
+        61
+      ],
+      "ref_median": 72.0,
+      "gen_median": 64.5,
+      "delta_semitones": -7.5,
+      "likely_octave_error": false,
+      "severity": "severe"
+    },
+    {
+      "measure": 30,
+      "ref_pitches": [
+        68,
+        68,
+        72,
+        75
+      ],
+      "gen_pitches": [
+        62,
+        60,
+        70,
+        68,
+        70,
+        62
+      ],
+      "ref_median": 70.0,
+      "gen_median": 65.0,
+      "delta_semitones": -5.0,
+      "likely_octave_error": false,
+      "severity": "moderate"
+    },
+    {
+      "measure": 31,
+      "ref_pitches": [
+        72,
+        68
+      ],
+      "gen_pitches": [
+        60,
+        70,
+        63,
+        65
+      ],
+      "ref_median": 70.0,
+      "gen_median": 64.0,
+      "delta_semitones": -6.0,
+      "likely_octave_error": false,
+      "severity": "severe"
+    },
+    {
+      "measure": 32,
+      "ref_pitches": [
+        68,
+        70,
+        72,
+        70
+      ],
+      "gen_pitches": [
+        65,
+        63,
+        65,
+        63,
+        70,
+        60,
+        70,
+        61,
+        65,
+        67
+      ],
+      "ref_median": 70.0,
+      "gen_median": 65.0,
+      "delta_semitones": -5.0,
+      "likely_octave_error": false,
+      "severity": "moderate"
+    },
+    {
+      "measure": 33,
+      "ref_pitches": [
+        68,
+        67
+      ],
+      "gen_pitches": [
+        67,
+        70,
+        79,
+        82,
+        80
+      ],
+      "ref_median": 67.5,
+      "gen_median": 79,
+      "delta_semitones": 11.5,
+      "likely_octave_error": true,
+      "severity": "severe"
+    },
+    {
+      "measure": 34,
+      "ref_pitches": [
+        68,
+        75,
+        72,
+        68,
+        75,
+        72
+      ],
+      "gen_pitches": [
+        66,
+        68,
+        65,
+        67,
+        65,
+        65
+      ],
+      "ref_median": 72.0,
+      "gen_median": 65.5,
+      "delta_semitones": -6.5,
+      "likely_octave_error": false,
+      "severity": "severe"
+    },
+    {
+      "measure": 35,
+      "ref_pitches": [
+        70,
+        75,
+        72,
+        68,
+        75,
+        72
+      ],
+      "gen_pitches": [
+        65,
+        72,
+        63,
+        72,
+        63,
+        70,
+        72
+      ],
+      "ref_median": 72.0,
+      "gen_median": 70,
+      "delta_semitones": -2.0,
+      "likely_octave_error": false,
+      "severity": "minor"
+    },
+    {
+      "measure": 36,
+      "ref_pitches": [
+        68,
+        68
+      ],
+      "gen_pitches": [
+        68,
+        70,
+        72,
+        67,
+        65,
+        67,
+        65
+      ],
+      "ref_median": 68.0,
+      "gen_median": 67,
+      "delta_semitones": -1.0,
+      "likely_octave_error": false,
+      "severity": "minor"
+    }
+  ],
+  "density_mismatches": [
+    {
+      "measure": 1,
+      "ref_count": 6,
+      "gen_count": 7,
+      "delta": 1,
+      "issue": "ok"
+    },
+    {
+      "measure": 2,
+      "ref_count": 7,
+      "gen_count": 6,
+      "delta": -1,
+      "issue": "ok"
+    },
+    {
+      "measure": 3,
+      "ref_count": 6,
+      "gen_count": 6,
+      "delta": 0,
+      "issue": "ok"
+    },
+    {
+      "measure": 4,
+      "ref_count": 6,
+      "gen_count": 6,
+      "delta": 0,
+      "issue": "ok"
+    },
+    {
+      "measure": 5,
+      "ref_count": 5,
+      "gen_count": 4,
+      "delta": -1,
+      "issue": "ok"
+    },
+    {
+      "measure": 6,
+      "ref_count": 6,
+      "gen_count": 7,
+      "delta": 1,
+      "issue": "ok"
+    },
+    {
+      "measure": 7,
+      "ref_count": 7,
+      "gen_count": 5,
+      "delta": -2,
+      "issue": "ok"
+    },
+    {
+      "measure": 8,
+      "ref_count": 5,
+      "gen_count": 4,
+      "delta": -1,
+      "issue": "ok"
+    },
+    {
+      "measure": 9,
+      "ref_count": 6,
+      "gen_count": 8,
+      "delta": 2,
+      "issue": "ok"
+    },
+    {
+      "measure": 10,
+      "ref_count": 3,
+      "gen_count": 7,
+      "delta": 4,
+      "issue": "too_dense"
+    },
+    {
+      "measure": 11,
+      "ref_count": 4,
+      "gen_count": 5,
+      "delta": 1,
+      "issue": "ok"
+    },
+    {
+      "measure": 12,
+      "ref_count": 6,
+      "gen_count": 5,
+      "delta": -1,
+      "issue": "ok"
+    },
+    {
+      "measure": 13,
+      "ref_count": 5,
+      "gen_count": 1,
+      "delta": -4,
+      "issue": "too_sparse"
+    },
+    {
+      "measure": 14,
+      "ref_count": 3,
+      "gen_count": 4,
+      "delta": 1,
+      "issue": "ok"
+    },
+    {
+      "measure": 15,
+      "ref_count": 4,
+      "gen_count": 4,
+      "delta": 0,
+      "issue": "ok"
+    },
+    {
+      "measure": 16,
+      "ref_count": 7,
+      "gen_count": 6,
+      "delta": -1,
+      "issue": "ok"
+    },
+    {
+      "measure": 17,
+      "ref_count": 3,
+      "gen_count": 8,
+      "delta": 5,
+      "issue": "too_dense"
+    },
+    {
+      "measure": 18,
+      "ref_count": 4,
+      "gen_count": 9,
+      "delta": 5,
+      "issue": "too_dense"
+    },
+    {
+      "measure": 19,
+      "ref_count": 4,
+      "gen_count": 5,
+      "delta": 1,
+      "issue": "ok"
+    },
+    {
+      "measure": 20,
+      "ref_count": 6,
+      "gen_count": 5,
+      "delta": -1,
+      "issue": "ok"
+    },
+    {
+      "measure": 21,
+      "ref_count": 4,
+      "gen_count": 6,
+      "delta": 2,
+      "issue": "ok"
+    },
+    {
+      "measure": 22,
+      "ref_count": 4,
+      "gen_count": 10,
+      "delta": 6,
+      "issue": "too_dense"
+    },
+    {
+      "measure": 23,
+      "ref_count": 3,
+      "gen_count": 8,
+      "delta": 5,
+      "issue": "too_dense"
+    },
+    {
+      "measure": 24,
+      "ref_count": 1,
+      "gen_count": 9,
+      "delta": 8,
+      "issue": "too_dense"
+    },
+    {
+      "measure": 25,
+      "ref_count": 2,
+      "gen_count": 4,
+      "delta": 2,
+      "issue": "ok"
+    },
+    {
+      "measure": 26,
+      "ref_count": 1,
+      "gen_count": 9,
+      "delta": 8,
+      "issue": "too_dense"
+    },
+    {
+      "measure": 27,
+      "ref_count": 6,
+      "gen_count": 7,
+      "delta": 1,
+      "issue": "ok"
+    },
+    {
+      "measure": 28,
+      "ref_count": 6,
+      "gen_count": 4,
+      "delta": -2,
+      "issue": "ok"
+    },
+    {
+      "measure": 29,
+      "ref_count": 2,
+      "gen_count": 3,
+      "delta": 1,
+      "issue": "ok"
+    },
+    {
+      "measure": 30,
+      "ref_count": 4,
+      "gen_count": 6,
+      "delta": 2,
+      "issue": "ok"
+    },
+    {
+      "measure": 31,
+      "ref_count": 2,
+      "gen_count": 4,
+      "delta": 2,
+      "issue": "ok"
+    },
+    {
+      "measure": 32,
+      "ref_count": 4,
+      "gen_count": 10,
+      "delta": 6,
+      "issue": "too_dense"
+    },
+    {
+      "measure": 33,
+      "ref_count": 2,
+      "gen_count": 5,
+      "delta": 3,
+      "issue": "too_dense"
+    },
+    {
+      "measure": 34,
+      "ref_count": 6,
+      "gen_count": 6,
+      "delta": 0,
+      "issue": "ok"
+    },
+    {
+      "measure": 35,
+      "ref_count": 6,
+      "gen_count": 7,
+      "delta": 1,
+      "issue": "ok"
+    },
+    {
+      "measure": 36,
+      "ref_count": 2,
+      "gen_count": 7,
+      "delta": 5,
+      "issue": "too_dense"
+    }
+  ],
+  "contour_segments": [
+    {
+      "start_measure": 1,
+      "end_measure": 4,
+      "ref_direction": "mixed",
+      "gen_direction": "mixed",
+      "agrees": true
+    },
+    {
+      "start_measure": 5,
+      "end_measure": 8,
+      "ref_direction": "mixed",
+      "gen_direction": "mixed",
+      "agrees": true
+    },
+    {
+      "start_measure": 9,
+      "end_measure": 12,
+      "ref_direction": "mixed",
+      "gen_direction": "mixed",
+      "agrees": true
+    },
+    {
+      "start_measure": 13,
+      "end_measure": 16,
+      "ref_direction": "mixed",
+      "gen_direction": "mixed",
+      "agrees": true
+    },
+    {
+      "start_measure": 17,
+      "end_measure": 20,
+      "ref_direction": "mixed",
+      "gen_direction": "mixed",
+      "agrees": true
+    },
+    {
+      "start_measure": 21,
+      "end_measure": 24,
+      "ref_direction": "mixed",
+      "gen_direction": "mixed",
+      "agrees": true
+    },
+    {
+      "start_measure": 25,
+      "end_measure": 28,
+      "ref_direction": "mixed",
+      "gen_direction": "mixed",
+      "agrees": true
+    },
+    {
+      "start_measure": 29,
+      "end_measure": 32,
+      "ref_direction": "mixed",
+      "gen_direction": "mixed",
+      "agrees": true
+    },
+    {
+      "start_measure": 33,
+      "end_measure": 36,
+      "ref_direction": "mixed",
+      "gen_direction": "mixed",
+      "agrees": true
+    }
+  ],
+  "errors": [
+    {
+      "category": "pitch_drift",
+      "measure": 7,
+      "description": "Pitch drifted -5.0 semitones from reference",
+      "ref_context": "Ref: ['F4', 'Eb4', 'Ab4', 'Ab4', 'Ab4', 'Bb4', 'Ab4']",
+      "gen_context": "Gen: ['Ab4', 'D4', 'F4', 'Eb4', 'Db4']",
+      "likely_pipeline_stage": "vocal_abstraction or pitch_refinement",
+      "severity": "moderate"
+    },
+    {
+      "category": "pitch_drift",
+      "measure": 10,
+      "description": "Pitch drifted +5.0 semitones from reference",
+      "ref_context": "Ref: ['Eb4', 'F4', 'Eb4']",
+      "gen_context": "Gen: ['C4', 'Ab4', 'Gb4', 'Ab4', 'Bb4', 'Db4', 'Ab4']",
+      "likely_pipeline_stage": "vocal_abstraction or pitch_refinement",
+      "severity": "moderate"
+    },
+    {
+      "category": "pitch_drift",
+      "measure": 12,
+      "description": "Pitch drifted -5.0 semitones from reference",
+      "ref_context": "Ref: ['Bb4', 'Ab4', 'Eb4', 'F4', 'Ab4', 'Ab4']",
+      "gen_context": "Gen: ['C4', 'G4', 'Eb4', 'Db4', 'Eb4']",
+      "likely_pipeline_stage": "vocal_abstraction or pitch_refinement",
+      "severity": "moderate"
+    },
+    {
+      "category": "wrong_pitch_center",
+      "measure": 14,
+      "description": "Pitch center off by -8.0 semitones",
+      "ref_context": "Ref: ['C5', 'Ab4', 'C5']",
+      "gen_context": "Gen: ['G4', 'F4', 'Eb4', 'C4']",
+      "likely_pipeline_stage": "pitch_refinement or melody_path",
+      "severity": "major"
+    },
+    {
+      "category": "pitch_drift",
+      "measure": 16,
+      "description": "Pitch drifted -3.0 semitones from reference",
+      "ref_context": "Ref: ['C5', 'Bb4', 'Ab4', 'Bb4', 'Ab4', 'F4', 'Eb4']",
+      "gen_context": "Gen: ['G4', 'F4', 'Eb4', 'F4', 'C4', 'Bb4']",
+      "likely_pipeline_stage": "vocal_abstraction or pitch_refinement",
+      "severity": "moderate"
+    },
+    {
+      "category": "octave_error",
+      "measure": 17,
+      "description": "Generated pitches are ~+12 semitones from reference (likely octave error)",
+      "ref_context": "Reference median: MIDI 61 (Db4), pitches: ['Eb4', 'Db4', 'C4']",
+      "gen_context": "Generated median: MIDI 72 (C5), pitches: ['Ab4', 'Ab4', 'Db5', 'Eb5', 'C5', 'Ab4', 'Db5', 'Eb5']",
+      "likely_pipeline_stage": "melody_path (DP resolver selecting wrong octave track)",
+      "severity": "critical"
+    },
+    {
+      "category": "pitch_drift",
+      "measure": 18,
+      "description": "Pitch drifted +4.0 semitones from reference",
+      "ref_context": "Ref: ['Ab4', 'Ab4', 'Bb4', 'Ab4']",
+      "gen_context": "Gen: ['C5', 'Bb4', 'Ab4', 'Db5', 'Eb5', 'C5', 'Ab4', 'Db5', 'Eb5']",
+      "likely_pipeline_stage": "vocal_abstraction or pitch_refinement",
+      "severity": "moderate"
+    },
+    {
+      "category": "wrong_pitch_center",
+      "measure": 20,
+      "description": "Pitch center off by -7.0 semitones",
+      "ref_context": "Ref: ['Bb4', 'Bb4', 'Bb4', 'Ab4', 'Bb4', 'Ab4']",
+      "gen_context": "Gen: ['Ab4', 'Eb4', 'C4', 'Bb4', 'C4']",
+      "likely_pipeline_stage": "pitch_refinement or melody_path",
+      "severity": "major"
+    },
+    {
+      "category": "pitch_drift",
+      "measure": 22,
+      "description": "Pitch drifted -4.5 semitones from reference",
+      "ref_context": "Ref: ['Bb4', 'Bb4', 'Bb4', 'Bb4']",
+      "gen_context": "Gen: ['C4', 'Bb4', 'C4', 'Bb4', 'C4', 'Eb4', 'Db4', 'Bb4', 'Ab4', 'B4']",
+      "likely_pipeline_stage": "vocal_abstraction or pitch_refinement",
+      "severity": "moderate"
+    },
+    {
+      "category": "wrong_pitch_center",
+      "measure": 24,
+      "description": "Pitch center off by -7.0 semitones",
+      "ref_context": "Ref: ['Eb5']",
+      "gen_context": "Gen: ['Bb4', 'C4', 'Bb4', 'G4', 'Bb4', 'Ab4', 'Bb4', 'Ab4', 'F4']",
+      "likely_pipeline_stage": "pitch_refinement or melody_path",
+      "severity": "major"
+    },
+    {
+      "category": "wrong_pitch_center",
+      "measure": 25,
+      "description": "Pitch center off by -8.5 semitones",
+      "ref_context": "Ref: ['Eb5', 'C5']",
+      "gen_context": "Gen: ['F4', 'Gb4', 'F4', 'D4']",
+      "likely_pipeline_stage": "pitch_refinement or melody_path",
+      "severity": "major"
+    },
+    {
+      "category": "pitch_drift",
+      "measure": 26,
+      "description": "Pitch drifted -5.0 semitones from reference",
+      "ref_context": "Ref: ['Ab4']",
+      "gen_context": "Gen: ['Eb4', 'Ab4', 'F4', 'Eb4', 'C4', 'Eb4', 'Db4', 'A4', 'Eb4']",
+      "likely_pipeline_stage": "vocal_abstraction or pitch_refinement",
+      "severity": "moderate"
+    },
+    {
+      "category": "wrong_pitch_center",
+      "measure": 27,
+      "description": "Pitch center off by -9.0 semitones",
+      "ref_context": "Ref: ['Ab4', 'Eb5', 'C5', 'Ab4', 'Eb5', 'C5']",
+      "gen_context": "Gen: ['F4', 'Eb4', 'C4', 'D4', 'C4', 'Bb4', 'Bb4']",
+      "likely_pipeline_stage": "pitch_refinement or melody_path",
+      "severity": "major"
+    },
+    {
+      "category": "wrong_pitch_center",
+      "measure": 28,
+      "description": "Pitch center off by -7.5 semitones",
+      "ref_context": "Ref: ['Bb4', 'Eb5', 'C5', 'Ab4', 'Eb5', 'C5']",
+      "gen_context": "Gen: ['Ab4', 'A4', 'Db4', 'Db4']",
+      "likely_pipeline_stage": "pitch_refinement or melody_path",
+      "severity": "major"
+    },
+    {
+      "category": "pitch_drift",
+      "measure": 30,
+      "description": "Pitch drifted -5.0 semitones from reference",
+      "ref_context": "Ref: ['Ab4', 'Ab4', 'C5', 'Eb5']",
+      "gen_context": "Gen: ['D4', 'C4', 'Bb4', 'Ab4', 'Bb4', 'D4']",
+      "likely_pipeline_stage": "vocal_abstraction or pitch_refinement",
+      "severity": "moderate"
+    },
+    {
+      "category": "wrong_pitch_center",
+      "measure": 31,
+      "description": "Pitch center off by -6.0 semitones",
+      "ref_context": "Ref: ['C5', 'Ab4']",
+      "gen_context": "Gen: ['C4', 'Bb4', 'Eb4', 'F4']",
+      "likely_pipeline_stage": "pitch_refinement or melody_path",
+      "severity": "major"
+    },
+    {
+      "category": "pitch_drift",
+      "measure": 32,
+      "description": "Pitch drifted -5.0 semitones from reference",
+      "ref_context": "Ref: ['Ab4', 'Bb4', 'C5', 'Bb4']",
+      "gen_context": "Gen: ['F4', 'Eb4', 'F4', 'Eb4', 'Bb4', 'C4', 'Bb4', 'Db4', 'F4', 'G4']",
+      "likely_pipeline_stage": "vocal_abstraction or pitch_refinement",
+      "severity": "moderate"
+    },
+    {
+      "category": "octave_error",
+      "measure": 33,
+      "description": "Generated pitches are ~+12 semitones from reference (likely octave error)",
+      "ref_context": "Reference median: MIDI 68 (G4), pitches: ['Ab4', 'G4']",
+      "gen_context": "Generated median: MIDI 79 (G5), pitches: ['G4', 'Bb4', 'G5', 'Bb5', 'Ab5']",
+      "likely_pipeline_stage": "melody_path (DP resolver selecting wrong octave track)",
+      "severity": "critical"
+    },
+    {
+      "category": "wrong_pitch_center",
+      "measure": 34,
+      "description": "Pitch center off by -6.5 semitones",
+      "ref_context": "Ref: ['Ab4', 'Eb5', 'C5', 'Ab4', 'Eb5', 'C5']",
+      "gen_context": "Gen: ['Gb4', 'Ab4', 'F4', 'G4', 'F4', 'F4']",
+      "likely_pipeline_stage": "pitch_refinement or melody_path",
+      "severity": "major"
+    },
+    {
+      "category": "note_explosion",
+      "measure": 10,
+      "description": "Generated has 7 notes vs reference's 3 (too many)",
+      "ref_context": "3 notes",
+      "gen_context": "7 notes",
+      "likely_pipeline_stage": "vocal_abstraction (insufficient merging) or vibrato suppression",
+      "severity": "minor"
+    },
+    {
+      "category": "over_merged",
+      "measure": 13,
+      "description": "Generated has 1 notes vs reference's 5 (too few)",
+      "ref_context": "5 notes",
+      "gen_context": "1 notes",
+      "likely_pipeline_stage": "vocal_abstraction (over-merging) or phrase_smoothing",
+      "severity": "moderate"
+    },
+    {
+      "category": "note_explosion",
+      "measure": 17,
+      "description": "Generated has 8 notes vs reference's 3 (too many)",
+      "ref_context": "3 notes",
+      "gen_context": "8 notes",
+      "likely_pipeline_stage": "vocal_abstraction (insufficient merging) or vibrato suppression",
+      "severity": "minor"
+    },
+    {
+      "category": "note_explosion",
+      "measure": 18,
+      "description": "Generated has 9 notes vs reference's 4 (too many)",
+      "ref_context": "4 notes",
+      "gen_context": "9 notes",
+      "likely_pipeline_stage": "vocal_abstraction (insufficient merging) or vibrato suppression",
+      "severity": "minor"
+    },
+    {
+      "category": "note_explosion",
+      "measure": 22,
+      "description": "Generated has 10 notes vs reference's 4 (too many)",
+      "ref_context": "4 notes",
+      "gen_context": "10 notes",
+      "likely_pipeline_stage": "vocal_abstraction (insufficient merging) or vibrato suppression",
+      "severity": "minor"
+    },
+    {
+      "category": "note_explosion",
+      "measure": 23,
+      "description": "Generated has 8 notes vs reference's 3 (too many)",
+      "ref_context": "3 notes",
+      "gen_context": "8 notes",
+      "likely_pipeline_stage": "vocal_abstraction (insufficient merging) or vibrato suppression",
+      "severity": "minor"
+    },
+    {
+      "category": "note_explosion",
+      "measure": 24,
+      "description": "Generated has 9 notes vs reference's 1 (too many)",
+      "ref_context": "1 notes",
+      "gen_context": "9 notes",
+      "likely_pipeline_stage": "vocal_abstraction (insufficient merging) or vibrato suppression",
+      "severity": "minor"
+    },
+    {
+      "category": "note_explosion",
+      "measure": 26,
+      "description": "Generated has 9 notes vs reference's 1 (too many)",
+      "ref_context": "1 notes",
+      "gen_context": "9 notes",
+      "likely_pipeline_stage": "vocal_abstraction (insufficient merging) or vibrato suppression",
+      "severity": "minor"
+    },
+    {
+      "category": "note_explosion",
+      "measure": 32,
+      "description": "Generated has 10 notes vs reference's 4 (too many)",
+      "ref_context": "4 notes",
+      "gen_context": "10 notes",
+      "likely_pipeline_stage": "vocal_abstraction (insufficient merging) or vibrato suppression",
+      "severity": "minor"
+    },
+    {
+      "category": "note_explosion",
+      "measure": 33,
+      "description": "Generated has 5 notes vs reference's 2 (too many)",
+      "ref_context": "2 notes",
+      "gen_context": "5 notes",
+      "likely_pipeline_stage": "vocal_abstraction (insufficient merging) or vibrato suppression",
+      "severity": "minor"
+    },
+    {
+      "category": "note_explosion",
+      "measure": 36,
+      "description": "Generated has 7 notes vs reference's 2 (too many)",
+      "ref_context": "2 notes",
+      "gen_context": "7 notes",
+      "likely_pipeline_stage": "vocal_abstraction (insufficient merging) or vibrato suppression",
+      "severity": "minor"
+    },
+    {
+      "category": "implausible_interval",
+      "measure": 34,
+      "description": "Jump of 14 semitones: Ab5 -> Gb4",
+      "ref_context": "Expected stepwise or small interval vocal motion",
+      "gen_context": "Ab5 -> Gb4 (14 st)",
+      "likely_pipeline_stage": "melody_path (stream switch) or pitch_refinement (octave correction failure)",
+      "severity": "major"
+    }
+  ]
+}

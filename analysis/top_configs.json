@@ -1,0 +1,167 @@
+[
+  {
+    "config": {
+      "melody": {
+        "register_weight": 3.0,
+        "local_register_weight": 4.0,
+        "below_local_median_penalty_weight": 3.0,
+        "octave_flip_penalty_weight": 14.0,
+        "merge_gap_ms": 250.0,
+        "consolidate_max_gap_ms": 150.0,
+        "phrase_max_short_note_ms": 200.0
+      },
+      "repair": {
+        "low_band_threshold": 8,
+        "octave_recovery_confidence_scale": 1.0,
+        "suppress_confidence_scale": 0.3
+      }
+    },
+    "metrics": {
+      "total_errors": 44,
+      "wrong_pitch_center": 6,
+      "pitch_drift": 14,
+      "contour_agreement_pct": 88.88888888888889,
+      "severe_mismatch_measures": 7,
+      "octave_error_measures": 1,
+      "missing_notes": 2,
+      "over_merged": 19,
+      "global_pitch_offset": 2.0,
+      "num_notes": 197
+    },
+    "score": 122.22222222222223,
+    "duration_s": 5.7,
+    "label": "random_22"
+  },
+  {
+    "config": {
+      "melody": {
+        "register_weight": 6.0,
+        "local_register_weight": 3.0,
+        "below_local_median_penalty_weight": 6.0,
+        "octave_flip_penalty_weight": 10.0,
+        "merge_gap_ms": 250.0,
+        "consolidate_max_gap_ms": 200.0,
+        "phrase_max_short_note_ms": 200.0
+      },
+      "repair": {
+        "low_band_threshold": 8,
+        "octave_recovery_confidence_scale": 0.9,
+        "suppress_confidence_scale": 0.5
+      }
+    },
+    "metrics": {
+      "total_errors": 44,
+      "wrong_pitch_center": 6,
+      "pitch_drift": 14,
+      "contour_agreement_pct": 88.88888888888889,
+      "severe_mismatch_measures": 7,
+      "octave_error_measures": 1,
+      "missing_notes": 2,
+      "over_merged": 19,
+      "global_pitch_offset": 2.0,
+      "num_notes": 197
+    },
+    "score": 122.22222222222223,
+    "duration_s": 5.9,
+    "label": "random_23"
+  },
+  {
+    "config": {
+      "melody": {
+        "register_weight": 6.0,
+        "local_register_weight": 4.0,
+        "below_local_median_penalty_weight": 2.0,
+        "octave_flip_penalty_weight": 6.0,
+        "merge_gap_ms": 250.0,
+        "consolidate_max_gap_ms": 400.0,
+        "phrase_max_short_note_ms": 150.0
+      },
+      "repair": {
+        "low_band_threshold": 8,
+        "octave_recovery_confidence_scale": 0.9,
+        "suppress_confidence_scale": 0.5
+      }
+    },
+    "metrics": {
+      "total_errors": 42,
+      "wrong_pitch_center": 6,
+      "pitch_drift": 12,
+      "contour_agreement_pct": 77.77777777777777,
+      "severe_mismatch_measures": 7,
+      "octave_error_measures": 1,
+      "missing_notes": 2,
+      "over_merged": 19,
+      "global_pitch_offset": 2.0,
+      "num_notes": 195
+    },
+    "score": 130.44444444444446,
+    "duration_s": 5.8,
+    "label": "random_19"
+  },
+  {
+    "config": {
+      "melody": {
+        "register_weight": 6.0,
+        "local_register_weight": 8.0,
+        "below_local_median_penalty_weight": 4.0,
+        "octave_flip_penalty_weight": 6.0,
+        "merge_gap_ms": 200.0,
+        "consolidate_max_gap_ms": 200.0,
+        "phrase_max_short_note_ms": 200.0
+      },
+      "repair": {
+        "low_band_threshold": 6,
+        "octave_recovery_confidence_scale": 1.0,
+        "suppress_confidence_scale": 0.5
+      }
+    },
+    "metrics": {
+      "total_errors": 41,
+      "wrong_pitch_center": 7,
+      "pitch_drift": 12,
+      "contour_agreement_pct": 77.77777777777777,
+      "severe_mismatch_measures": 8,
+      "octave_error_measures": 1,
+      "missing_notes": 2,
+      "over_merged": 18,
+      "global_pitch_offset": 4.0,
+      "num_notes": 194
+    },
+    "score": 132.44444444444446,
+    "duration_s": 6.0,
+    "label": "random_2"
+  },
+  {
+    "config": {
+      "melody": {
+        "register_weight": 6.0,
+        "local_register_weight": 4.0,
+        "below_local_median_penalty_weight": 4.0,
+        "octave_flip_penalty_weight": 14.0,
+        "merge_gap_ms": 120.0,
+        "consolidate_max_gap_ms": 150.0,
+        "phrase_max_short_note_ms": 150.0
+      },
+      "repair": {
+        "low_band_threshold": 6,
+        "octave_recovery_confidence_scale": 0.7,
+        "suppress_confidence_scale": 0.5
+      }
+    },
+    "metrics": {
+      "total_errors": 41,
+      "wrong_pitch_center": 7,
+      "pitch_drift": 12,
+      "contour_agreement_pct": 77.77777777777777,
+      "severe_mismatch_measures": 8,
+      "octave_error_measures": 1,
+      "missing_notes": 2,
+      "over_merged": 18,
+      "global_pitch_offset": 4.0,
+      "num_notes": 195
+    },
+    "score": 132.44444444444446,
+    "duration_s": 6.5,
+    "label": "random_21"
+  }
+]

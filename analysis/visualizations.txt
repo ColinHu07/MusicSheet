@@ -1,0 +1,121 @@
+REFERENCE VS GENERATED ANALYSIS VISUALIZATIONS
+Reference: Raise y_our glass (158 notes)
+Generated: raise_your_glass__vocals (227 notes)
+Comparison range: measures 1-36
+
+======================================================================
+PITCH MISMATCH HEATMAP BY MEASURE
+  . = match, o = minor (1-2st), O = moderate (3-5st),
+  X = severe (6-11st), ! = octave error (12st)
+======================================================================
+  OOOOX-OOOXOOOXOXXoo.o.--XoXXOoOX...O
+
+      5    0    5    0    5    0    5 
+      +    |    +    |    +    |    + 
+
+================================================================================
+PITCH CONTOUR COMPARISON (Reference vs Generated)
+================================================================================
+ Measure           Ref Pitches                     Gen Pitches          
+--------------------------------------------------------------------------------
+  m  1    Ab4 Ab4 Bb4 Ab4 Eb4 Eb4         C5                            
+  m  2    F4 Eb4 Ab4 Ab4 Ab4 Bb4 Ab4      C5                            
+  m  3    Bb4 Ab4 Ab4 Eb4 F4 Ab4          C5                            
+  m  4    Ab4 Ab4 Ab4 Bb4 Ab4 Eb4         C5                            
+  m  5    Eb4 F4 Eb4 Ab4 Ab4              C5                            
+  m  6    Ab4 Ab4 Bb4 Ab4 Eb4 Eb4         (rest)                        
+  m  7    F4 Eb4 Ab4 Ab4 Ab4 Bb4 Ab4      C5 C5                         
+  m  8    Bb4 Ab4 Ab4 Eb4 F4              C5                            
+  m  9    Ab4 Ab4 Ab4 Bb4 Ab4 Eb4         C5 C5                         
+  m 10    Eb4 F4 Eb4                      C5                            
+  m 11    Ab4 Ab4 Ab4 Ab4                 C5 Eb5                        
+  m 12    Bb4 Ab4 Eb4 F4 Ab4 Ab4          C5                            
+  m 13    Ab4 Bb4 Ab4 Ab4 Bb4             Eb4                           
+  m 14    C5 Ab4 C5                       Eb4 C4                        
+  m 15    Bb4 Ab4 Ab4 Bb4                 F4 Eb4                        
+  m 16    C5 Bb4 Ab4 Bb4 Ab4 F4 Eb4       Eb4 D4 Db4 C4 Bb3             
+  m 17    Eb4 Db4 C4                      Bb4                           
+  m 18    Ab4 Ab4 Bb4 Ab4                 Bb4                           
+  m 19    Ab4 Bb4 Ab4 F4                  Bb4                           
+  m 20    Bb4 Bb4 Bb4 Ab4 Bb4 Ab4         Bb4                           
+  m 21    Bb4 Ab4 Ab4 Ab4                 Bb4                           
+  m 22    Bb4 Bb4 Bb4 Bb4                 Bb4                           
+  m 23    Bb4 G4 Eb4                      (rest)                        
+  m 24    Eb5                             (rest)                        
+  m 25    Eb5 C5                          G4                            
+  m 26    Ab4                             G4                            
+  m 27    Ab4 Eb5 C5 Ab4 Eb5 C5           F4                            
+  m 28    Bb4 Eb5 C5 Ab4 Eb5 C5           Eb4 C4                        
+  m 29    Ab4 Ab4                         C4 Ab4                        
+  m 30    Ab4 Ab4 C5 Eb5                  Ab4 C5 G4                     
+  m 31    C5 Ab4                          G4 F4                         
+  m 32    Ab4 Bb4 C5 Bb4                  F4 C4 Bb3                     
+  m 33    Ab4 G4                          Bb3 Ab4 Eb5                   
+  m 34    Ab4 Eb5 C5 Ab4 Eb5 C5           Eb5 C5 Ab4 Eb5 C5             
+  m 35    Bb4 Eb5 C5 Ab4 Eb5 C5           C5 Bb4 Eb5                    
+  m 36    Ab4 Ab4                         Eb5 C5 Ab4 Eb5 C5             
+
+======================================================================
+NOTES PER MEASURE: Reference (R) vs Generated (G)
+======================================================================
+  m  1  R: RRRRRR       (6)  G: G            (1)
+  m  2  R: RRRRRRR      (7)  G: G            (1)
+  m  3  R: RRRRRR       (6)  G: G            (1)
+  m  4  R: RRRRRR       (6)  G: G            (1)
+  m  5  R: RRRRR        (5)  G: G            (1)
+  m  6  R: RRRRRR       (6)  G:              (0)
+  m  7  R: RRRRRRR      (7)  G: GG           (2)
+  m  8  R: RRRRR        (5)  G: G            (1)
+  m  9  R: RRRRRR       (6)  G: GG           (2)
+  m 10  R: RRR          (3)  G: G            (1)
+  m 11  R: RRRR         (4)  G: GG           (2)
+  m 12  R: RRRRRR       (6)  G: G            (1)
+  m 13  R: RRRRR        (5)  G: G            (1)
+  m 14  R: RRR          (3)  G: GG           (2)
+  m 15  R: RRRR         (4)  G: GG           (2)
+  m 16  R: RRRRRRR      (7)  G: GGGGG        (5)
+  m 17  R: RRR          (3)  G: G            (1)
+  m 18  R: RRRR         (4)  G: G            (1)
+  m 19  R: RRRR         (4)  G: G            (1)
+  m 20  R: RRRRRR       (6)  G: G            (1)
+  m 21  R: RRRR         (4)  G: G            (1)
+  m 22  R: RRRR         (4)  G: G            (1)
+  m 23  R: RRR          (3)  G:              (0)
+  m 24  R: R            (1)  G:              (0)
+  m 25  R: RR           (2)  G: G            (1)
+  m 26  R: R            (1)  G: G            (1)
+  m 27  R: RRRRRR       (6)  G: G            (1)
+  m 28  R: RRRRRR       (6)  G: GG           (2)
+  m 29  R: RR           (2)  G: GG           (2)
+  m 30  R: RRRR         (4)  G: GGG          (3)
+  m 31  R: RR           (2)  G: GG           (2)
+  m 32  R: RRRR         (4)  G: GGG          (3)
+  m 33  R: RR           (2)  G: GGG          (3)
+  m 34  R: RRRRRR       (6)  G: GGGGG        (5)
+  m 35  R: RRRRRR       (6)  G: GGG          (3)
+  m 36  R: RR           (2)  G: GGGGG        (5)
+
+======================================================================
+PITCH DISTRIBUTION HISTOGRAM
+======================================================================
+    Note               Reference                            Generated             
+--------------------------------------------------------------------------------
+     Bb3                                   0  #####                           11
+      C4                                   1  ######                          13
+     Db4                                   1  #                                2
+      D4                                   0                                   1
+     Eb4  #########                       18  ######                          13
+      E4                                   0  #                                2
+      F4  ####                             9  ######                          13
+      G4  #                                2  ########                        17
+     Ab4  ###################################  70  ################                32
+      A4                                   0                                   1
+     Bb4  ###############                 31  #################               35
+      B4                                   0                                   1
+      C5  #######                         15  #####################           43
+     Db5                                   0  ####                             8
+     Eb5  #####                           11  ############                    25
+      F5                                   0  ##                               4
+      G5                                   0  #                                3
+     Ab5                                   0                                   1
+     Bb5                                   0  #                                2

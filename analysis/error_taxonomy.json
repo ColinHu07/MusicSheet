@@ -1,0 +1,253 @@
+{
+  "title": "Error Taxonomy for MP3→Sheet Pipeline: Raise Your Glass",
+  "analysis_date": "2026-04-03",
+  "reference_source": "MuseScore 'Raise y_our glass - Violin Version' by Music ABC",
+  "generated_source": "Pipeline output (vocals mode, 45s, 143.6 BPM)",
+  "summary": {
+    "total_error_instances": 47,
+    "critical_errors": 7,
+    "major_errors": 21,
+    "moderate_errors": 19,
+    "minor_errors": 2,
+    "dominant_problem": "Systematic octave-low pitch selection (~8 semitones below reference)"
+  },
+  "categories": [
+    {
+      "id": "octave_error",
+      "name": "Octave Selection Error",
+      "description": "The DP melody path resolver selects candidates one octave below the actual vocal melody, producing notes 12 semitones too low.",
+      "count": 7,
+      "severity": "critical",
+      "affected_measures": [6, 8, 20, 21, 22, 23, 24],
+      "examples": [
+        {
+          "measure": 6,
+          "reference": "Ab4 Ab4 Bb4 Ab4 Eb4 Eb4 (median=68)",
+          "generated": "Ab3 Ab3 (median=56)",
+          "delta": -12,
+          "explanation": "DP selected Ab3 instead of Ab4 — exact octave displacement"
+        },
+        {
+          "measure": 20,
+          "reference": "Bb4 Bb4 Bb4 Ab4 Bb4 Ab4 (median=70)",
+          "generated": "Bb3 Bb3 Ab3 (median=58)",
+          "delta": -12,
+          "explanation": "Pre-chorus Bb4 pattern resolved as Bb3 — full octave error"
+        },
+        {
+          "measure": 24,
+          "reference": "Eb5 (median=75)",
+          "generated": "Eb4 (median=63)",
+          "delta": -12,
+          "explanation": "Sustained chorus note Eb5 resolved as Eb4"
+        }
+      ],
+      "likely_root_cause": "melody_path DP resolver — register scoring cannot overcome confidence/duration advantage of lower-octave harmonic candidates from Basic Pitch",
+      "pipeline_stage": "melody_path",
+      "contributing_factors": [
+        "Basic Pitch generates strong low-octave harmonics as candidates",
+        "The upper_quartile_pitch is only 68 (Ab4) — already biased low",
+        "Register bonus (vocal mode) targets upper quartile but with insufficient weight",
+        "Local register context is contaminated by abundance of low-octave candidates",
+        "Octave smoothing post-cleanup is too conservative to fix systematic octave errors"
+      ]
+    },
+    {
+      "id": "wrong_pitch_center",
+      "name": "Wrong Pitch Center (non-octave)",
+      "description": "Selected pitch is significantly wrong but not a clean octave error. Typically 7-10 semitones too low.",
+      "count": 19,
+      "severity": "major",
+      "affected_measures": [1, 2, 3, 4, 5, 7, 9, 11, 12, 13, 14, 15, 16, 18, 19, 25, 27, 28, 32],
+      "examples": [
+        {
+          "measure": 1,
+          "reference": "Ab4 Ab4 Bb4 Ab4 Eb4 Eb4 (median=68)",
+          "generated": "Ab3 C4 (median=58)",
+          "delta": -10,
+          "explanation": "Opening measure — Ab4 melody rendered as Ab3+C4 (mixed wrong octave + wrong pitch)"
+        },
+        {
+          "measure": 14,
+          "reference": "C5 Ab4 C5 (median=72)",
+          "generated": "Eb4 C4 (median=62)",
+          "delta": -10.5,
+          "explanation": "Rising melody C5 rendered as lower Eb4/C4"
+        },
+        {
+          "measure": 16,
+          "reference": "C5 Bb4 Ab4 Bb4 Ab4 F4 Eb4 (median=68)",
+          "generated": "Eb4 D4 Db4 C4 Bb3 (median=61)",
+          "delta": -7,
+          "explanation": "Descending passage shifted down — contour partially preserved but wrong register"
+        }
+      ],
+      "likely_root_cause": "Combination of octave error and pitch drift from merging/refinement",
+      "pipeline_stage": "melody_path + pitch_refinement",
+      "contributing_factors": [
+        "DP resolver selecting from wrong octave track",
+        "Pitch refinement's neighbor correction nudging toward wrong (low) center",
+        "Vocal abstraction merging notes across octave boundaries"
+      ]
+    },
+    {
+      "id": "over_merged",
+      "name": "Over-Merged Notes (Too Sparse)",
+      "description": "The generated output has far fewer notes per measure than the reference, indicating excessive merging of distinct melodic events.",
+      "count": 13,
+      "severity": "moderate",
+      "affected_measures": [1, 2, 3, 4, 6, 7, 8, 10, 13, 22, 23, 27, 28],
+      "examples": [
+        {
+          "measure": 2,
+          "reference": "7 notes (F4 Eb4 Ab4 Ab4 Ab4 Bb4 Ab4)",
+          "generated": "1 note (C4)",
+          "ratio": "7:1",
+          "explanation": "Entire measure of eighth-note melody collapsed into single quarter note"
+        },
+        {
+          "measure": 27,
+          "reference": "6 notes (Ab4 Eb5 C5 Ab4 Eb5 C5)",
+          "generated": "1 note (F4)",
+          "ratio": "6:1",
+          "explanation": "Chorus hook pattern (Ab-Eb-C arpeggiation) completely lost"
+        },
+        {
+          "measure": 8,
+          "reference": "5 notes (Bb4 Ab4 Ab4 Eb4 F4)",
+          "generated": "1 note (Ab3)",
+          "ratio": "5:1",
+          "explanation": "Both wrong pitch and excessive merging compound"
+        }
+      ],
+      "likely_root_cause": "Vocals-mode config overrides increase merge tolerances significantly",
+      "pipeline_stage": "vocal_abstraction + phrase_smoothing",
+      "contributing_factors": [
+        "merge_gap_ms=200 (vs default 120) merges notes that should be distinct",
+        "consolidate_max_gap_ms=300 (vs default 150) absorbs too many events",
+        "phrase_max_short_note_ms=300 treats notes up to 300ms as 'short' for merging",
+        "The reference has ~4.4 notes/measure but generated has ~2.4 notes/measure",
+        "Vibrato suppression + phrase smoothing compound to eliminate real melodic motion"
+      ]
+    },
+    {
+      "id": "pitch_drift",
+      "name": "Pitch Drift",
+      "description": "Pitch is moderately wrong (3-5 semitones off) — not a full octave but still clearly incorrect.",
+      "count": 6,
+      "severity": "moderate",
+      "affected_measures": [10, 17, 29, 31, 33, 36],
+      "examples": [
+        {
+          "measure": 17,
+          "reference": "Eb4 Db4 C4 (median=61)",
+          "generated": "Ab3 Ab3 (median=56)",
+          "delta": -5,
+          "explanation": "Descending line Eb4-Db4-C4 resolved as repeated Ab3"
+        },
+        {
+          "measure": 33,
+          "reference": "Ab4 G4 (median=68)",
+          "generated": "Bb3 Ab3 Ab4 Eb5 (median=64.5)",
+          "delta": -4.5,
+          "explanation": "Transition zone — mix of correct and wrong-octave notes"
+        }
+      ],
+      "likely_root_cause": "Pitch refinement or vocal abstraction choosing wrong representative pitch for merged segments",
+      "pipeline_stage": "pitch_refinement + vocal_abstraction",
+      "contributing_factors": [
+        "Duration-weighted pitch selection can drift toward harmonics",
+        "Stability-weighted scoring may favor sustained lower harmonics",
+        "Neighbor correction can propagate errors from adjacent wrong-octave notes"
+      ]
+    },
+    {
+      "id": "implausible_interval",
+      "name": "Implausible Melodic Interval",
+      "description": "Large jumps (12+ semitones) between consecutive notes that are not musically justified.",
+      "count": 1,
+      "severity": "major",
+      "affected_measures": [33],
+      "examples": [
+        {
+          "measure": 33,
+          "reference": "Smooth continuation around Ab4",
+          "generated": "Ab3 -> Ab4 (12 semitone jump)",
+          "explanation": "Octave jump at verse/chorus boundary where melody is continuous in reference"
+        }
+      ],
+      "likely_root_cause": "Stream switch in DP resolver at section boundary",
+      "pipeline_stage": "melody_path (stream switching)",
+      "contributing_factors": [
+        "DP resolver switches between octave tracks at phrase boundaries",
+        "Pitch refinement's interval smoothing limited to 7-semitone threshold",
+        "octave_flip_penalty_weight (6.0) not strong enough at boundaries"
+      ]
+    },
+    {
+      "id": "note_explosion",
+      "name": "Note Explosion (Too Dense)",
+      "description": "Generated output has more notes than reference in specific measures.",
+      "count": 1,
+      "severity": "minor",
+      "affected_measures": [36],
+      "examples": [
+        {
+          "measure": 36,
+          "reference": "2 notes (Ab4 Ab4)",
+          "generated": "5 notes (Eb5 C5 Ab4 Eb5 C5)",
+          "explanation": "Chorus arpeggiation pattern — actually the reference may be simplified here; the generated output captures more detail from the arrangement"
+        }
+      ],
+      "likely_root_cause": "Vocal abstraction insufficiently merging in this specific section",
+      "pipeline_stage": "vocal_abstraction",
+      "contributing_factors": [
+        "Fast arpeggiation pattern exceeds vibrato detection thresholds",
+        "The reference violin arrangement may be intentionally simpler here"
+      ]
+    }
+  ],
+  "error_distribution_by_stage": {
+    "melody_path": {
+      "error_types": ["octave_error", "wrong_pitch_center", "implausible_interval"],
+      "instance_count": 27,
+      "severity": "critical",
+      "description": "The DP resolver is the PRIMARY source of errors. It systematically selects the wrong octave for melody notes, and this error propagates through all downstream stages."
+    },
+    "vocal_abstraction": {
+      "error_types": ["over_merged", "pitch_drift"],
+      "instance_count": 13,
+      "severity": "moderate",
+      "description": "Over-aggressive merging eliminates real melodic detail. Vocals-mode config overrides (merge_gap_ms=200, consolidate_max_gap_ms=300) are too aggressive."
+    },
+    "pitch_refinement": {
+      "error_types": ["pitch_drift", "wrong_pitch_center"],
+      "instance_count": 6,
+      "severity": "moderate",
+      "description": "Neighbor correction and interval smoothing cannot fix octave-level errors and may propagate them. The corrections applied (13 neighbor, 2 interval) may be nudging notes toward wrong centers."
+    },
+    "phrase_smoothing": {
+      "error_types": ["over_merged"],
+      "instance_count": 3,
+      "severity": "minor",
+      "description": "Compounds merging from vocal abstraction. Less directly responsible but contributes to density reduction."
+    },
+    "candidate_notes": {
+      "error_types": [],
+      "instance_count": 0,
+      "severity": "contributing",
+      "description": "Not directly causing errors, but the candidate pool is heavily biased toward lower-octave harmonics, which is the root enabler of the DP resolver's octave errors."
+    }
+  },
+  "key_metrics": {
+    "global_pitch_offset": -8.0,
+    "measures_with_octave_error": 7,
+    "measures_with_severe_pitch_error": 26,
+    "note_density_ratio": 0.54,
+    "contour_agreement": 0.89,
+    "reference_median_pitch": 68,
+    "generated_median_pitch": 60,
+    "reference_notes_per_measure": 4.4,
+    "generated_notes_per_measure": 2.4
+  }
+}

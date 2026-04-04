@@ -1,0 +1,23 @@
+# MP3 → Sheet Music: Core dependencies
+# Install: pip install -r requirements.txt
+
+# Audio-to-MIDI (Spotify Basic Pitch)
+# Use basic-pitch[tf] for TensorFlow backend or basic-pitch[onnx] for lighter ONNX backend
+basic-pitch>=0.3.0
+
+# Audio analysis
+librosa>=0.10.0
+soundfile>=0.12.0
+numpy>=1.23.0
+
+# Music notation / MusicXML generation
+music21>=9.1.0
+
+# Desktop GUI
+PySide6>=6.5.0
+
+# Fallback MP3 decoding
+pydub>=0.25.0
+
+# YouTube support (optional — install for YouTube search/fetch)
+# yt-dlp>=2024.1.0
