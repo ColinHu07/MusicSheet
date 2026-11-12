@@ -1,0 +1,152 @@
+{
+  "source_project": "Local transcription workspace",
+  "contains_audio": false,
+  "contains_model_weights": false,
+  "contains_reference_scores": false,
+  "contains_voice_conversion_code": false,
+  "components": [
+    {
+      "destination": "musicsheet/acoustic.py",
+      "source": "scripts/transcription_corpus/model.py",
+      "original_sha256": "209191c9f54fa6118ee2a30ddb378bc280b9cb1e7724f69d0ad7d04079bc400e",
+      "extracted_definitions": null,
+      "adaptation": "Package imports; explicit asset configuration and device portability where applicable"
+    },
+    {
+      "destination": "musicsheet/decoder.py",
+      "source": "scripts/transcription_corpus/decoder_v3.py",
+      "original_sha256": "a8dba2305bfea4fb72ea053b151e7ab179be853ec7eb31de5b0b8dd755f9797f",
+      "extracted_definitions": null,
+      "adaptation": "Package imports; explicit asset configuration and device portability where applicable"
+    },
+    {
+      "destination": "musicsheet/event_fusion.py",
+      "source": "scripts/transcription_corpus/note_event_decode_20261111.py",
+      "original_sha256": "44573315d714fd5932c8f41673b39301ccfb1f72f9d1bf7c95714d943fa02228",
+      "extracted_definitions": null,
+      "adaptation": "Package imports; explicit asset configuration and device portability where applicable"
+    },
+    {
+      "destination": "musicsheet/beats.py",
+      "source": "scripts/transcription_corpus/event_beat_candidates_20261111.py",
+      "original_sha256": "c43c10b5c94323aedfe7d789a6ab069afacbc2505258dad535f2ab27b451a074",
+      "extracted_definitions": null,
+      "adaptation": "Package imports; explicit asset configuration and device portability where applicable"
+    },
+    {
+      "destination": "musicsheet/evaluation.py",
+      "source": "scripts/transcription_corpus/note_event_evaluation_20261111.py",
+      "original_sha256": "c4386579b2099e7b4c5f998b9ca1bc2cfe3e632bff2bccef13652b6c89b22ac9",
+      "extracted_definitions": null,
+      "adaptation": "Package imports; explicit asset configuration and device portability where applicable"
+    },
+    {
+      "destination": "musicsheet/rhythm.py",
+      "source": "scripts/transcription_corpus/rhythm_human_candidate_20261101.py",
+      "original_sha256": "81ffa78e9815fb1953e489c7fa0fa66774be61d69c9ffd572d944f5ac0a99d24",
+      "extracted_definitions": null,
+      "adaptation": "Package imports; explicit asset configuration and device portability where applicable"
+    },
+    {
+      "destination": "musicsheet/learned_rhythm.py",
+      "source": "scripts/transcription_corpus/learned_rhythm.py",
+      "original_sha256": "03a0947f08cb63ce3f2b46f4840c15b068407e7893f37dff118b6364245f7c28",
+      "extracted_definitions": null,
+      "adaptation": "Package imports; explicit asset configuration and device portability where applicable"
+    },
+    {
+      "destination": "musicsheet/articulation.py",
+      "source": "scripts/transcription_corpus/train_syllable_adapter_anchored_20261101.py",
+      "original_sha256": "dc84bb0ff223ac5bd62d447a81e7c75f581c59e800743341ddf8696ba6154945",
+      "extracted_definitions": [
+        "features",
+        "ArticulationHead",
+        "infer"
+      ],
+      "adaptation": "Package imports; explicit asset configuration and device portability where applicable"
+    },
+    {
+      "destination": "musicsheet/register.py",
+      "source": "scripts/transcription_corpus/joint_pitch_syllables_20261101.py",
+      "original_sha256": "a1550168120b2b5c4ae982f24472e2ec8ed757c4db674f0cbc56bc4c5e65c0af",
+      "extracted_definitions": null,
+      "adaptation": "Package imports; explicit asset configuration and device portability where applicable"
+    },
+    {
+      "destination": "musicsheet/targets.py",
+      "source": "scripts/transcription_corpus/train_v3.py",
+      "original_sha256": "125286a9e377fb2b9dafa71b7fd6bec76ef5b83abe0beb1109b24363930a3967",
+      "extracted_definitions": [
+        "reviewed_targets"
+      ],
+      "adaptation": "Package imports; explicit asset configuration and device portability where applicable"
+    },
+    {
+      "destination": "musicsheet/events.py",
+      "source": "scripts/transcription_corpus/note_events_20261111.py",
+      "original_sha256": "d9676e6ab833a4705bcea9afef5c8667bf67fdeb947fcf05b3c6e9b65b9736ca",
+      "extracted_definitions": [
+        "logit",
+        "previous_boundaries",
+        "features",
+        "NoteEventNetwork",
+        "targets",
+        "predict",
+        "decode_events"
+      ],
+      "adaptation": "Package imports; explicit asset configuration and device portability where applicable"
+    },
+    {
+      "destination": "musicsheet/audio.py",
+      "source": "scripts/transcription_corpus/audio_features.py",
+      "original_sha256": "d361fb512892a79bc873fcafa641ad8c8882b96b2797dcdd4bc81933d5d82cb0",
+      "extracted_definitions": [
+        "sha256",
+        "save_json",
+        "decode",
+        "extract"
+      ],
+      "adaptation": "Package imports; explicit asset configuration and device portability where applicable"
+    },
+    {
+      "destination": "musicsheet/phonetics.py",
+      "source": "scripts/transcription_corpus/lyric_phonetics_20261111.py",
+      "original_sha256": "61fedd826ecacde7cb549fc691bc362e19ff494fa4e0c1f86efc7bbaea58ade5",
+      "extracted_definitions": [
+        "ctc_align",
+        "make_g2p",
+        "align_lyrics"
+      ],
+      "adaptation": "Package imports; explicit asset configuration and device portability where applicable"
+    },
+    {
+      "destination": "musicsheet/lyric_inputs.py",
+      "source": "scripts/transcription_corpus/infer_lyric_aware_20261111.py",
+      "original_sha256": "b45d4a5d3e665e2efc0be27bf8b826ed271671d19a3d06448119aed1da800249",
+      "extracted_definitions": [
+        "lyric_input"
+      ],
+      "adaptation": "Package imports; explicit asset configuration and device portability where applicable"
+    },
+    {
+      "destination": "musicsheet/midi.py",
+      "source": "scripts/transcription_corpus/export_human_candidate_20261101.py",
+      "original_sha256": "ef9a2cc2e092314e3e3a96b8311377efbf60d0b102e784a49d2735b64a0401aa",
+      "extracted_definitions": [
+        "midi_bytes"
+      ],
+      "adaptation": "Package imports; explicit asset configuration and device portability where applicable"
+    },
+    {
+      "destination": "musicsheet/training_metrics.py",
+      "source": "scripts/transcription_corpus/train.py",
+      "original_sha256": "20ec4ebe302755e264318f8dd0495c63b21da89360aab6dce8609a71f1241c5f",
+      "extracted_definitions": [
+        "event_metrics",
+        "evaluate",
+        "macro"
+      ],
+      "adaptation": "Package imports; explicit asset configuration and device portability where applicable"
+    }
+  ]
+}

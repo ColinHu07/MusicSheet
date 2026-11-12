@@ -1,0 +1,19 @@
+{
+  "base": {
+    "checkpoint": {"path": "../models/base/checkpoint.pt", "sha256": "REPLACE_WITH_SHA256"},
+    "normalization": {"path": "../models/base/normalization.npz", "sha256": "REPLACE_WITH_SHA256"}
+  },
+  "joint": {
+    "checkpoint": {"path": "../models/joint/checkpoint.pt", "sha256": "REPLACE_WITH_SHA256"},
+    "normalization": {"path": "../models/joint/normalization.npz", "sha256": "REPLACE_WITH_SHA256"},
+    "decoder": {"path": "../models/joint/decoder_config.json", "sha256": "REPLACE_WITH_SHA256"}
+  },
+  "events": {
+    "checkpoint": {"path": "../models/events/checkpoint.pt", "sha256": "REPLACE_WITH_SHA256"},
+    "normalization": {"path": "../models/events/normalization.npz", "sha256": "REPLACE_WITH_SHA256"}
+  },
+  "lyric": {
+    "checkpoint": {"path": "../models/lyric/checkpoint.pt", "sha256": "REPLACE_WITH_SHA256"},
+    "normalization": {"path": "../models/lyric/normalization.npz", "sha256": "REPLACE_WITH_SHA256"}
+  }
+}

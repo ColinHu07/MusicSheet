@@ -1,0 +1,7 @@
+{
+  "tracks": [
+    {"id": "song-a", "split": "train", "source_sha256": "REPLACE_WITH_ACTUAL_SOURCE_SHA256", "features": "../data/song-a/features", "alignment": "../data/song-a/alignment.json"},
+    {"id": "song-b", "split": "validation", "source_sha256": "REPLACE_WITH_DIFFERENT_SOURCE_SHA256", "features": "../data/song-b/features", "alignment": "../data/song-b/alignment.json"},
+    {"id": "song-c", "split": "test", "source_sha256": "REPLACE_WITH_HELDOUT_SOURCE_SHA256", "features": "../data/song-c/features", "alignment": "../data/song-c/alignment.json"}
+  ]
+}
