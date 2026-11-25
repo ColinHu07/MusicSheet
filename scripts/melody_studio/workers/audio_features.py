@@ -123,5 +123,3 @@ def extract(audio: np.ndarray) -> dict[str, np.ndarray]:
         if name != "midi" and len(value) != count:
             raise ValueError("Frame mismatch: " + name)
     return result
-
-

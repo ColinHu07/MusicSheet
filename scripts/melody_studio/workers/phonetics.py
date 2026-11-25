@@ -108,4 +108,3 @@ def align_lyrics(asr,ppg,times,vocab):
                 'Pronunciation can differ in singing; unsupported phones remain unknown',
                 'Overlapping vocals and rap have not been assigned a melody role'],
         lyrics_extracted=True,lyrics_used_for_alignment=True,score_read=False,tempo_used=False)
-

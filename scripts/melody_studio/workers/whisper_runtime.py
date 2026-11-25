@@ -11,4 +11,3 @@ if dlls.exists():
     os.environ['PATH']=str(dlls)+os.pathsep+os.environ['PATH']
 from faster_whisper import WhisperModel
 import ctranslate2
-

@@ -89,5 +89,3 @@ def rmvpe_evidence(vocal, model, frame_count):
     midi[voiced] = 69.0 + 12.0 * np.log2(hz[voiced] / 440.0)
     return dict(rmvpe_f0_hz=hz, rmvpe_confidence=confidence, rmvpe_midi=midi,
                 rmvpe_voiced=voiced.astype(np.float32))
-
-

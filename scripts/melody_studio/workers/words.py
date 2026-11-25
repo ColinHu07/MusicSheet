@@ -194,5 +194,3 @@ def phone_stage(tracks):
                  old_outputs_unchanged=True, boundaries_still_unverified=True))
         print(json.dumps(dict(track=song, words=len(result['words']), syllables=len(result['syllables']),
                               supported=sum(s['supported_input'] for s in result['syllables']))), flush=True)
-
-
