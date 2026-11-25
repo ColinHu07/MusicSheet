@@ -2,6 +2,10 @@
 
 Local music-transcription research: recover **pitches, repeated attacks, endings and uncertainty first**, then create an editable score.
 
+## Contributor notebook
+
+[Open the annotation notebook](https://colinhu07.github.io/MusicSheet/). Choose your own recording and optionally its matching unfolded MusicXML melody. Review a random 20-second excerpt, label notes at reduced speed, and export your annotations to share. Audio stays on your device. MP3-only review uses manual note entry.
+
 ## Melody Studio
 
 Import an MP3, follow the engraved melody, click or drag notes to correct pitch and timing, and export PDF, MusicXML or MIDI. The gallery saves edits and song details locally.
