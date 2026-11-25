@@ -4,7 +4,7 @@ Local music-transcription research: recover **pitches, repeated attacks, endings
 
 ## Contributor notebook
 
-[Open the annotation notebook](https://colinhu07.github.io/MusicSheet/). Choose your own recording and optionally its matching unfolded MusicXML melody. Review a random 20-second excerpt, label notes at reduced speed, and export your annotations to share. Audio stays on your device. MP3-only review uses manual note entry.
+[Open the annotation notebook](https://colinhu07.github.io/MusicSheet/). Import several MP3s at once to get one random excerpt per song. Each excerpt includes playback, a clickable estimated pitch map and note-to-syllable review rows. The browser estimates pitches from the mix, so instrumental notes and missed attacks need review. Imports and edits persist on this device. Export the annotation backup to share your work.
 
 ## Melody Studio
 
