@@ -14,6 +14,7 @@ dependencies = ["numpy>=1.26,<3", "scipy>=1.11,<2"]
 ml = ["torch>=2.2,<3", "librosa>=0.10,<0.12"]
 notation = ["verovio>=4,<7", "reportlab>=4,<5", "svglib>=1.5,<2"]
 lyrics = ["torch>=2.2,<3", "faster-whisper>=1.1,<2", "transformers>=4.49,<5", "phonemizer>=3.3,<4", "espeakng-loader>=0.2.4,<1"]
+fusion = ["scikit-learn==1.7.2", "joblib>=1.4,<2"]
 test = ["pytest>=8,<9"]
 
 [project.scripts]

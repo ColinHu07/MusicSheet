@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#fff9ee">
+  <title>Melody Studio</title><link rel="stylesheet" href="/studio.css?v=lyric1">
+</head>
+<body>
+  <svg class="icon-bank" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <symbol id="i-library" viewBox="0 0 24 24"><path d="M4 4v16m5-16v16m5-15 5 14"/></symbol>
+      <symbol id="i-import" viewBox="0 0 24 24"><path d="M12 15V3m-4 4 4-4 4 4M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></symbol>
+      <symbol id="i-score" viewBox="0 0 24 24"><path d="M7 3h9l3 3v15H5V3h2Zm2 5h6m-6 4h6m-6 4h4"/></symbol>
+      <symbol id="i-undo" viewBox="0 0 24 24"><path d="m8 5-5 5 5 5m-5-5h10c5 0 7 3 7 8"/></symbol>
+      <symbol id="i-redo" viewBox="0 0 24 24"><path d="m16 5 5 5-5 5m5-5H11c-5 0-7 3-7 8"/></symbol>
+      <symbol id="i-down" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol>
+      <symbol id="i-pencil" viewBox="0 0 24 24"><path d="m5 15 11-11a2 2 0 0 1 4 4L9 19l-5 1 1-5Zm9-9 4 4"/></symbol>
+      <symbol id="i-volume" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4zM17 8q4 4 0 8"/></symbol>
+    </defs>
+  </svg>
+  <header class="appbar"><div class="wrap bar-inner">
+    <a class="brand" href="#library" aria-label="Melody Studio home"><span class="brand-flower flower" aria-hidden="true"><i></i><i></i><i></i><b></b></span>Melody <em>Studio</em></a>
+    <span id="localLabel" class="device-label">On this device</span>
+    <a id="backToLibrary" class="back-link" href="#library" hidden>← Saved sheets</a>
+  </div></header>
+  <div class="wrap"><p id="message" role="status" hidden></p></div>
+  <main id="home" class="wrap home">
+    <section class="import-board" id="dropArea" aria-labelledby="homeTitle">
+      <div class="board-copy"><h1 id="homeTitle" tabindex="-1">Transcribe<br> a <em>song.</em></h1>
+        <button id="uploadOpen" class="primary"><svg class="icon"><use href="#i-import"/></svg>Import MP3</button>
+        <p class="drop-hint">or drop a file here</p>
+      </div>
+    </section>
+    <section class="collection" aria-labelledby="collectionTitle">
+      <div class="collection-head"><h2 id="collectionTitle">Saved sheets</h2><span id="sheetCount"></span></div>
+      <div id="gallery" class="gallery"></div>
+      <p id="emptyLibrary" hidden>Your first sheet will appear here.</p>
+    </section>
+  </main>
+  <main id="workspace" class="wrap" hidden>
+    <section id="loadingScene" class="loading-scene" aria-labelledby="loadingTitle" hidden>
+      <div class="dj-stage" aria-hidden="true">
+        <div class="dj-cels"></div>
+        <span class="doodle note-one">♪</span><span class="doodle note-two">♫</span>
+        <span class="doodle sparkle-one">✧</span><span class="doodle sparkle-two">✦</span>
+      </div>
+      <div class="dj-copy">
+        <p id="loadingSong"></p>
+        <h1 id="loadingTitle" tabindex="-1">Loading<span class="loading-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span></h1>
+        <p id="loadingStage" role="status"></p><p id="loadingTime"></p>
+      </div>
+      <button id="pauseAnimation" type="button" aria-label="Pause animation" title="Pause animation"><span aria-hidden="true">Ⅱ</span></button>
+    </section>
+    <div class="hero">
+      <div class="song-info"><p id="artist" hidden></p><h1 id="title" tabindex="-1">Opening score…</h1><div id="meta"></div></div>
+    </div>
+    <div class="layout">
+      <article class="folio">
+        <header class="folio-head"><div class="sheet-label"><svg class="icon"><use href="#i-score"/></svg><h2>Sheet music</h2></div>
+          <div class="document"><span id="saved" role="status"></span>
+            <button id="undo" class="icon-button" title="Undo last saved change" aria-label="Undo" disabled><svg class="icon"><use href="#i-undo"/></svg></button>
+            <button id="redo" class="icon-button" title="Redo change" aria-label="Redo" disabled><svg class="icon"><use href="#i-redo"/></svg></button>
+            <button id="exports" aria-expanded="false" aria-controls="exportMenu">Export<svg class="icon tiny"><use href="#i-down"/></svg></button>
+            <div id="exportMenu" hidden><a id="xml">MusicXML</a><a id="mid">MIDI</a><a id="pdf">PDF sheet music</a><a id="baseline">Model original (MusicXML)</a></div>
+          </div>
+        </header>
+        <div id="paperArea" tabindex="0" aria-label="Scrollable score"><div id="paper" aria-label="Editable sheet music"></div></div>
+        <div class="transport">
+          <button id="play" class="play" aria-label="Play">▶</button><span id="clock">0:00</span>
+          <input id="scrub" type="range" min="0" max="1" value="0" step=".01" aria-label="Playback position"><span id="total">0:00</span>
+          <select id="speed" aria-label="Playback speed" title="Playback speed"><option value=".5">0.5×</option><option value=".75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option></select>
+          <label class="mix"><svg class="icon"><use href="#i-volume"/></svg>Original<input id="mix" aria-label="Original recording volume" type="range" min="0" max="100" value="18"></label>
+        </div>
+      </article>
+      <aside>
+        <header class="editor-head"><span class="pencil"><svg class="icon"><use href="#i-pencil"/></svg></span><h2>Note editor</h2></header>
+        <form id="editor">
+          <div class="pitch-card"><div class="pitch-label"><label for="pitch">Written pitch</label><span id="location">Select a note</span></div>
+            <div class="pitch-row"><input id="pitch" autocomplete="off" spellcheck="false" value="C5"><div class="pitchBtns"><button type="button" data-offset="-1" title="Lower one semitone" aria-label="Lower one semitone">♭</button><button type="button" data-offset="1" title="Raise one semitone" aria-label="Raise one semitone">♯</button></div></div>
+            <div class="octaves"><button type="button" data-offset="-12">− Octave</button><button type="button" data-offset="12">+ Octave</button></div>
+          </div>
+          <div class="field-grid"><label>Bar<input id="bar" type="number" min="1" step="1" required></label><label>Beat<input id="beat" type="number" min="1" max="4.99999" step="any" required></label>
+            <label>Length <span>(beats)</span><input id="length" type="number" min=".01" step="any" required></label>
+            <label>Move by<select id="step"><option value="24">⅛ note</option><option value="12" selected>1/16 note</option><option value="6">1/32 note</option><option value="16">⅛ triplet</option><option value="8">1/16 triplet</option></select></label></div>
+          <div class="pair movement"><button type="button" id="earlier">← Earlier</button><button type="button" id="later">Later →</button></div>
+          <label class="check"><input id="ripple" type="checkbox">Shift following notes</label>
+          <button class="primary wide">Apply changes</button>
+        </form>
+        <div class="note-actions"><button id="insert">Insert note</button><button id="split">Split note</button><button id="join">Join next</button><button id="delete">Delete</button></div>
+        <p class="hint">Click a note to hear it. Drag vertically for pitch or sideways for timing.</p>
+      </aside>
+    </div>
+  </main>
+  <dialog id="sheetDetails" aria-labelledby="detailsTitle"><form id="detailsForm">
+    <h2 id="detailsTitle">Edit sheet details</h2>
+    <label>Title<input id="sheetTitle" type="text" required maxlength="120" autocomplete="off"></label>
+    <label>Author<input id="sheetAuthor" type="text" maxlength="120" autocomplete="off" placeholder="Optional"></label>
+    <p id="detailsError" role="alert"></p>
+    <div class="actions"><button id="detailsCancel" type="button">Cancel</button><button class="primary" id="detailsSave">Save</button></div>
+  </form></dialog>
+  <dialog id="upload" aria-labelledby="uploadTitle"><form id="uploadForm"><span class="dialog-icon"><svg class="icon"><use href="#i-import"/></svg></span><h2 id="uploadTitle">Import a recording</h2><p>Your MP3 is transcribed on this computer.</p>
+    <label>MP3 file<input id="file" type="file" accept=".mp3,audio/mpeg" required></label><label>Language for lyric alignment<select id="language"><option value="ko">Korean / mixed Korean</option><option value="en">English</option></select></label>
+    <div class="actions"><button id="cancel" type="button">Cancel</button><button class="primary" id="send">Transcribe</button></div><p id="uploadError" role="alert"></p></form></dialog>
+  <footer id="credits" class="wrap" hidden>Salamander Grand Piano by Alexander Holm <span>·</span> <a href="/samples/manifest.json">CC BY 3.0 credits</a></footer>
+  <script type="module" src="/app.js?v=tempo-header"></script>
+</body>
+</html>

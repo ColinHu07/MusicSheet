@@ -1,0 +1,7 @@
+{
+  "weights_sha256": "7256bc3d73128bf91e2985f5d551951fd2e9b0d6bef7938fa76c2f2332c480c4",
+  "decoder_sha256": "a74ce2e236ee4f9a564572b21caa37064c0a8c30f89a8d5e780fa799c3242c3c",
+  "decoder_strength": 1,
+  "selection": "Validation only; mean of per-song IOI/duration exact agreement",
+  "test_used_for_selection": false
+}

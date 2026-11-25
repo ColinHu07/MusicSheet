@@ -1,0 +1,4 @@
+{
+  "onset_threshold": 0.67,
+  "pitch_confidence_threshold": 0.99
+}

@@ -2,7 +2,20 @@
 
 Local music-transcription research: recover **pitches, repeated attacks, endings and uncertainty first**, then create an editable score.
 
-The new `musicsheet` package contains the current acoustic note models, register correction, experimental lyric/phonetic conditioning, training/evaluation tools, MusicXML/PDF export and local MIDI playback. The earlier desktop app is preserved as legacy code.
+## Melody Studio
+
+Import an MP3, follow the engraved melody, click or drag notes to correct pitch and timing, and export PDF, MusicXML or MIDI. The gallery saves edits and song details locally.
+
+From a clone, install the editor and launch it with:
+
+```sh
+python -m venv .venv
+# Activate .venv first
+python -m pip install -e ".[notation,fusion]"
+python scripts/melody_studio/server.py --open
+```
+
+**MP3 transcription requires the local audio workers, GPU runtimes and third-party acoustic assets described in [Studio setup](docs/studio.md).** The trained MusicSheet checkpoints are included. The local server listens on loopback and keeps uploads and edits on disk.
 
 ## Start here
 
@@ -41,7 +54,7 @@ python -m musicsheet score --predictions examples/synthetic_notes.json --bpm 120
 
 ## Current limits
 
-**This is a source release, not a pretrained one-click MP3 converter.** Recordings, reference scores, lyric outputs, learned checkpoints and instrument banks remain local. A fresh clone can run the synthetic tests and score example; song inference requires compatible local weights and features. New-audio feature preparation expects an aligned vocal stem and independently computed RMVPE evidence. See the setup guide for the exact schema.
+The earlier note-first CLI uses its own asset manifest. Studio uses the bundled fusion, acoustic, syllable, register and rhythm checkpoints. See [Studio setup](docs/studio.md).
 
 The latest note-event and lyric-conditioned models are experiments. The lyric pilot has **not demonstrated better note accuracy** than its matched acoustic control. Most historical labels are weakly aligned arrangements. Passing software tests or producing smoother playback does not establish musical accuracy.
 

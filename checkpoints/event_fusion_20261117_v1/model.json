@@ -1,0 +1,42 @@
+{
+  "version": "event_fusion_20261117_v1",
+  "threshold": 0.3,
+  "merge_tolerance_s": 0.14,
+  "median_anchor": true,
+  "feature_count": 56,
+  "melisma_training_weight": 3,
+  "training_songs": [
+    "aiiyl",
+    "lovesick_girls",
+    "dont_know_what_to_do",
+    "i_do",
+    "love_scenario",
+    "magnetic",
+    "loco",
+    "eight",
+    "eleven",
+    "gods",
+    "way_back_home",
+    "0x1lovesong",
+    "what_is_love",
+    "lifes_too_short",
+    "boy_with_luv",
+    "dynamite",
+    "make_it_right"
+  ],
+  "training_events": 676,
+  "annotation_sha256": "3aae7b1bc126d19ae63c5cfee860c36820ddd03c4ec80ddccea796cfd0d6771c",
+  "evaluated_predictions": "outputs/transcription_research_20261117_v1/fusion_timing_ensemble_v1/ensemble",
+  "default_pipeline_changed": false,
+  "source_models": [
+    "previous local model",
+    "ROSVOT + RWBD",
+    "GAME 1.0.3 medium"
+  ],
+  "limitations": [
+    "Historical models saw these songs",
+    "Reference timings are automatic",
+    "No verified sung octave labels",
+    "Scores are not calibrated probabilities"
+  ]
+}
