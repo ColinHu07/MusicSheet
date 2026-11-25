@@ -16,7 +16,7 @@ BAR = 4 * DIV
 VERSION = 'learned-context-grid-r1'
 
 def _learned_cost(duration, probability):
-    from scripts.transcription_corpus.learned_rhythm import TICKS
+    from .learned_rhythm import TICKS
     return min(-math.log(max(float(p),1e-8)) + 8*abs(float(t)-duration)/DIV for t,p in zip(TICKS,probability))
 
 
@@ -143,7 +143,7 @@ def quantize_rhythm(events,bpm,phase=0.,model=None,strength=0.):
     learned_costs=None
     if probabilities is not None:
         import numpy as np
-        from scripts.transcription_corpus.learned_rhythm import TICKS
+        from .learned_rhythm import TICKS
         learned_costs=(-np.log(np.maximum(probabilities[:,:,:,None],1e-8))+8*np.abs(TICKS[:,None]-np.arange(193))/DIV).min(axis=2)
     period=60/bpm
     beats=[(n['start_s']-phase)/period for n in events]
@@ -200,7 +200,7 @@ def quantize_rhythm(events,bpm,phase=0.,model=None,strength=0.):
         if c['family']!='binary':end=min(end,c['start']+96)
         if i+1<len(events) and c['family']=='binary' and assigned[i+1][1]['family']!='binary':end=min(end,assigned[i+1][1]['start'])
         if probabilities is not None and not event.get('rest_after'):
-            from scripts.transcription_corpus.learned_rhythm import TICKS
+            from .learned_rhythm import TICKS
             limit=assigned[i+1][0] if i+1<len(events) else end+48
             if c['family']!='binary':limit=min(limit,c['start']+96)
             if i+1<len(events) and c['family']=='binary' and assigned[i+1][1]['family']!='binary':limit=min(limit,assigned[i+1][1]['start'])
