@@ -25,6 +25,13 @@ async function readPrintedPage(page,pageIndex){
       if(hits===8 && clear===4 && x-bars.at(-1)>5*d)bars.push(x);
     }
     if(right-bars.at(-1)>3*d)bars.push(right);else bars[bars.length-1]=right;
+    // Two full-height strokes close together bound the interior of a double bar.
+    const closingStrokes=[];
+    for(let x=Math.max(left,Math.floor(right-3*d));x<=right;x++){
+      let hits=0;
+      for(let k=0;k<12;k++)if(ink(x,top+(k+.5)*d/3))hits++;
+      if(hits>=11)closingStrokes.push(x);
+    }
     const candidates=[];
     for(let x=Math.round(left+4*d);x<right-d/2;x++){
       for(let step=-8;step<=18;step++){
@@ -40,9 +47,19 @@ async function readPrintedPage(page,pageIndex){
         for(const side of [-1,1])for(const dy of [-.24,.24])
           if(!ink(x+side*.85*d,y+dy*d))flankSpace++;
         // Half notes have a light diagonal channel between two dark arcs.
-        const hollow=ink(x-.33*d,y-.12*d)&&ink(x+.33*d,y+.12*d)
+        let hollow=ink(x-.33*d,y-.12*d)&&ink(x+.33*d,y+.12*d)
           &&ink(x-.19*d,y-.34*d)&&ink(x+.19*d,y+.34*d)
           &&!ink(x-.16*d,y+.15*d)&&!ink(x+.16*d,y-.15*d);
+        if(!hollow && !ink(x-.14*d,y+.13*d) && !ink(x+.14*d,y-.13*d)){
+          // Some engravers draw flatter open ovals; sample both sloping rims.
+          let rims=0;
+          for(const u of [-.36,-.18,0,.18,.36]){
+            for(const side of [-1,1]){
+              if([.29,.38,.46].some(v=>ink(x+u*d,y+(side*v-.42*u)*d)))rims++;
+            }
+          }
+          hollow=rims>=9 && ink(x-.52*d,y+.17*d) && ink(x+.52*d,y-.17*d);
+        }
         // A flat has an ascending stroke on its left edge. A conventional
         // notehead's ascending stem is on the right, even in a key signature area.
         let flatStroke=false;
@@ -54,8 +71,16 @@ async function readPrintedPage(page,pageIndex){
           }
         }
         if(flatStroke)continue;
+        if(closingStrokes.length && closingStrokes.some(v=>v<=x && x-v<.62*d) && closingStrokes.some(v=>v>=x && v-x<.62*d))continue;
         if((inside>=5||hollow)&&outside>=3&&flankSpace>=3){
           let stem=false;
+          // A tie can cross the otherwise empty area behind a hollow head's stem.
+          const previous=hollow && candidates.findLast(n=>n.step===step && x-n.x>1.3*d && x-n.x<6*d);
+          const tied=previous && [-1,1].some(side=>[.25,.5,.75].every(fraction=>{
+            const px=previous.x+(x-previous.x)*fraction;
+            for(let v=.52;v<=1.35;v+=.1)if(ink(px,y+side*v*d) && !ink(px,y+side*(v+.24)*d))return true;
+            return false;
+          }));
           for(const side of [-1,1])for(let dx=.36;dx<=.74;dx+=.08){
             let hits=0;for(let k=0;k<5;k++)if(pixels[4*(Math.round(y-side*(.72+.29*k)*d)*w+Math.round(x+side*dx*d))]<205)hits++;
             let thin=0;
@@ -63,7 +88,7 @@ async function readPrintedPage(page,pageIndex){
               const sy=y-side*reach*d,sx=x+side*dx*d;
               if(!ink(sx-.22*d,sy)&&!ink(sx+.22*d,sy))thin++;
             }
-            if(thin>=2 && hits>=4 && (inside>=5 || !ink(x+side*dx*d,y+side*.86*d)) 
+            if(thin>=2 && hits>=4 && (inside>=5 || tied || !ink(x+side*dx*d,y+side*.86*d))
                 && pixels[4*(Math.round(y-side*2.3*d)*w+Math.round(x+side*dx*d))]<205)stem=true;
           }
           if(stem)candidates.push({x,y,step,hollow,quality:outside+Number(ink(x-.49*d,y+.18*d))+Number(ink(x+.49*d,y-.18*d))});
@@ -214,5 +239,7 @@ async function printedPassage(source,buffer,id){
   const boundary=following?following.time:last.start_s+best.beat;
   return {...source,id,alignmentTempo:60/best.beat,alignmentOffset:best.t,fullScorePages:pages,phraseImages:undefined,notes,images,start_s:notes[0].start_s,end_s:Math.min(buffer.duration,boundary),alignment_note:'Printed score · estimated audio alignment. Check the loop by ear.'};
 }
+
+
 
 
