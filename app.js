@@ -319,21 +319,31 @@ async function anotherPassage(source){
   if(source.source_hashes.score_sha256 && !source.pdfReference && !source.writtenNotes){
     announce('Reimport this MusicXML score once to use its full melody for additional passages.');return;
   }
-  const candidates=gaps.filter(([a,b])=>b-a>=2).map(([a,b])=>{
-    const starts=source.writtenNotes?.map(n=>n.time+offset).filter(t=>t>=a && t<b-1);
-    if(starts && !starts.length)return null;
-    const start=starts?starts[Math.floor(Math.random()*starts.length)]:a+Math.random()*Math.max(0,b-a-8);
-    return {start,end:Math.min(start+8,b)};
-  }).filter(Boolean);
-  if(!candidates.length){announce('The remaining music has no suitable unreviewed passage.');return}
-  const {start,end}=candidates[Math.floor(Math.random()*candidates.length)];
-  const clip={...entry.clip,id,start_s:start,end_s:end,notes:[],images:[],pitchVersion:3};
-  if(source.pdfReference)clip.images=source.images.map(image=>({...image,notes:[]}));
-  if(!source.writtenNotes)await estimatePhrase(clip,buffer);
-  if(source.writtenNotes){
-    clip.notes=source.writtenNotes.filter(n=>n.time+offset>=start && n.time+offset<end).map((n,i)=>({...n,id:id+':'+(i+1),index:i+1,start_s:n.time+offset,end_s:Math.min(end,n.time+offset+n.duration)}));
-    clip.images=notation(clip.notes);
+  const candidates=[];
+  for(const [a,b] of gaps){
+    for(let start=a;start+6<=b;start+=8){
+      candidates.push({start,end:Math.min(start+16,b)});
+    }
   }
+  let clip;
+  announce('Looking for a passage with at least 12 notes…');
+  while(candidates.length){
+    const index=Math.floor(Math.random()*candidates.length);
+    const {start,end}=candidates.splice(index,1)[0];
+    const notes=source.writtenNotes
+      ? source.writtenNotes.filter(n=>n.time+offset>=start && n.time+offset<end).map((n,i)=>({...n,id:id+':'+(i+1),index:i+1,start_s:n.time+offset,end_s:Math.min(end,n.time+offset+n.duration)}))
+      : makeNotes(await analyze(buffer,start,end),id,start,end);
+    if(notes.length<12)continue;
+    clip={...entry.clip,id,start_s:start,end_s:end,notes,images:[],pitchVersion:3};
+    if(source.writtenNotes)clip.images=notation(notes);
+    else{
+      clip.phraseImages=notation(notes);
+      if(source.pdfReference)clip.images=source.images.map(image=>({...image,notes:[]}));
+    }
+    break;
+  }
+  if(!clip){announce('No remaining passage yielded 12 notes.');return}
+  announce('');
   const next={...entry,created:Date.now(),clip};await storeSong(await dbReady,id,next);
   const live=playable(next);clips.push(live);clipMap.set(id,live);render();scrollToClip(live);
 }
