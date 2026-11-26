@@ -34,11 +34,22 @@ async function readPrintedPage(page,pageIndex){
           if(ink(x+u*d,y+(v-u*.25)*d))inside++;
           if(!ink(x+u*d,y+(Math.sign(v)*.69-u*.25)*d))outside++;
         }
-        if(inside>=5&&outside>=4){
+        // Beam edges can satisfy the ellipse test. A head also has white
+        // space on both sides, away from the staff line through its centre.
+        let flankSpace=0;
+        for(const side of [-1,1])for(const dy of [-.24,.24])
+          if(!ink(x+side*.85*d,y+dy*d))flankSpace++;
+        if(inside>=5&&outside>=4&&flankSpace===4){
           let stem=false;
           for(const side of [-1,1])for(let dx=.36;dx<=.74;dx+=.08){
             let hits=0;for(let k=0;k<5;k++)if(pixels[4*(Math.round(y-side*(.72+.29*k)*d)*w+Math.round(x+side*dx*d))]<205)hits++;
-            if(hits>=4)stem=true;
+            let thin=0;
+            for(const reach of [1.25,1.75,2.25]){
+              const sy=y-side*reach*d,sx=x+side*dx*d;
+              if(!ink(sx-.22*d,sy)&&!ink(sx+.22*d,sy))thin++;
+            }
+            if(thin>=2 && hits>=4 && !ink(x+side*dx*d,y+side*.86*d)
+                && pixels[4*(Math.round(y-side*2.3*d)*w+Math.round(x+side*dx*d))]<205)stem=true;
           }
           if(stem)candidates.push({x,y,step,quality:outside+Number(ink(x-.49*d,y+.18*d))+Number(ink(x+.49*d,y-.18*d))});
         }
