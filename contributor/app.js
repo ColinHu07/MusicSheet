@@ -53,7 +53,7 @@ function storeSong(db,id,entry){
 }
 function chooseWindow(buffer,id){
   let seed=parseInt(id.slice(0,8),16);
-  const length=Math.min(20,buffer.duration),samples=buffer.getChannelData(0);
+  const length=Math.min(8,buffer.duration),samples=buffer.getChannelData(0);
   // Choose randomly among audible windows so leading/trailing silence is less likely.
   let start=0;
   for(let i=0;i<16;i++){
@@ -222,7 +222,7 @@ async function attachScore(input,files,source){
     const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');
     const id=source.id+'-'+hash+'-'+offset;
     if(clipMap.has(id)){scrollToClip(clipMap.get(id));return}
-    const entry=await dbGet('songs',source.song_id);
+    const entry=await dbGet('songs',source.id);
     const pdf=/\.pdf$/i.test(file.name);
     const clip={...source,id,notes:[],pdfReference:pdf||screenshots,pitchVersion:3,score_role:file.name,source_hashes:{...entry.clip.source_hashes,score_sha256:hash}};
     delete clip.writtenNotes;
@@ -242,10 +242,14 @@ async function attachScore(input,files,source){
       const eligible=starts.filter(n=>n.time+offset<duration);
       if(!eligible.length)throw Error('The score starts outside the recording. Check the offset.');
       const anchor=eligible.reduce((a,b)=>Math.abs(a.time+offset-clip.start_s)<=Math.abs(b.time+offset-clip.start_s)?a:b);
-      clip.start_s=anchor.time+offset;clip.end_s=Math.min(duration,clip.start_s+20);
+      clip.start_s=anchor.time+offset;clip.end_s=Math.min(duration,clip.start_s+8);
       clip.notes=eligible.filter(n=>n.time>=anchor.time && n.time+offset<clip.end_s).map((n,i)=>({...n,id:id+':'+(i+1),index:i+1,start_s:n.time+offset,end_s:Math.min(duration,n.time+offset+n.duration)}));
       clip.images=notation(clip.notes);
       clip.alignment_note='Written pitches from MusicXML · check playback alignment against the recording. Pitch map spacing is schematic.';
+    }
+    if(clip.pdfReference){
+      const decoder=new OfflineAudioContext(1,1,8000);
+      await estimatePhrase(clip,await decoder.decodeAudioData(await entry.file.arrayBuffer()));
     }
     const newEntry={...entry,created:Date.now(),clip};await saveSheet(newEntry);
     const live=playable(newEntry);if(source.id===source.song_id && !source.notes.length)clips=clips.filter(c=>c!==source);clips.push(live);clipMap.set(id,live);render();$('overallCount').textContent=new Set(clips.map(c=>c.song_id)).size+' songs';scrollToClip(live);announce('');
@@ -294,6 +298,11 @@ document.addEventListener('click',async event=>{
 });
 
 
+async function estimatePhrase(clip,buffer){
+  const events=await analyze(buffer,clip.start_s,clip.end_s);
+  clip.notes=makeNotes(events,clip.id,clip.start_s,clip.end_s);
+  clip.phraseImages=notation(clip.notes);
+}
 async function anotherPassage(source){
   const entry=await dbGet('songs',source.id);
   const decoder=new OfflineAudioContext(1,1,8000);
@@ -313,13 +322,14 @@ async function anotherPassage(source){
   const candidates=gaps.filter(([a,b])=>b-a>=2).map(([a,b])=>{
     const starts=source.writtenNotes?.map(n=>n.time+offset).filter(t=>t>=a && t<b-1);
     if(starts && !starts.length)return null;
-    const start=starts?starts[Math.floor(Math.random()*starts.length)]:a+Math.random()*Math.max(0,b-a-20);
-    return {start,end:Math.min(start+20,b)};
+    const start=starts?starts[Math.floor(Math.random()*starts.length)]:a+Math.random()*Math.max(0,b-a-8);
+    return {start,end:Math.min(start+8,b)};
   }).filter(Boolean);
   if(!candidates.length){announce('The remaining music has no suitable unreviewed passage.');return}
   const {start,end}=candidates[Math.floor(Math.random()*candidates.length)];
   const clip={...entry.clip,id,start_s:start,end_s:end,notes:[],images:[],pitchVersion:3};
   if(source.pdfReference)clip.images=source.images.map(image=>({...image,notes:[]}));
+  if(!source.writtenNotes)await estimatePhrase(clip,buffer);
   if(source.writtenNotes){
     clip.notes=source.writtenNotes.filter(n=>n.time+offset>=start && n.time+offset<end).map((n,i)=>({...n,id:id+':'+(i+1),index:i+1,start_s:n.time+offset,end_s:Math.min(end,n.time+offset+n.duration)}));
     clip.images=notation(clip.notes);
@@ -328,7 +338,7 @@ async function anotherPassage(source){
   const live=playable(next);clips.push(live);clipMap.set(id,live);render();scrollToClip(live);
 }
 async function deleteSong(source){
-  if(!confirm('Delete “'+source.title+'” and all its saved passages and labels from this browser?'))return;
+  if(!confirm('Delete this phrase of “'+source.title+'” and its annotations?'))return;
   await save();if(dirty||saving||conflicted)throw Error('Finish saving before deleting this song.');
   const db=await dbReady, expected=revision;
   const remaining=copy(state);
@@ -342,7 +352,7 @@ async function deleteSong(source){
         const cursor=scan.result;
         if(!cursor){settings.put({revision:expected+1,data:remaining},'review');return}
         const c=cursor.value.clip;
-        if(c.song_id===source.song_id){
+        if(c.id===source.id){
           cursor.delete();delete remaining.clips[c.id];
           for(const [key,r] of Object.entries(remaining.records))if(r.clip_id===c.id)delete remaining.records[key];
         }
@@ -351,12 +361,12 @@ async function deleteSong(source){
     };
     tx.oncomplete=resolve;tx.onabort=()=>reject(Error('Could not delete. Reload the notebook and retry.'));
   });
-  if(active?.song_id===source.song_id){audio.pause();audio.removeAttribute('src');audio.load();active=null;$('playerTitle').textContent='Choose a phrase below';$('playerRange').textContent='';$('replay').disabled=$('back').disabled=true}
-  for(const [id,c] of clipMap)if(c.song_id===source.song_id){clipMap.delete(id);URL.revokeObjectURL(c.audio_url)}
-  clips=clips.filter(c=>c.song_id!==source.song_id);revision=expected+1;applyState(remaining);backup();
+  if(active?.id===source.id){audio.pause();audio.removeAttribute('src');audio.load();active=null;$('playerTitle').textContent='Choose a phrase below';$('playerRange').textContent='';$('replay').disabled=$('back').disabled=true}
+  for(const [id,c] of clipMap)if(c.id===source.id){clipMap.delete(id);URL.revokeObjectURL(c.audio_url)}
+  clips=clips.filter(c=>c.id!==source.id);revision=expected+1;applyState(remaining);backup();
   $('overallCount').textContent=new Set(clips.map(c=>c.song_id)).size+' songs';
   if(!clips.length){$('progressText').textContent='Import songs to begin.';$('progressBar').style.width='0%'}
-  announce('Song deleted.');
+  announce('Phrase deleted.');
 }
 document.addEventListener('click',async event=>{
   const button=event.target.closest('[data-more],[data-delete-song]');if(!button)return;
