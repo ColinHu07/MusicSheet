@@ -476,3 +476,45 @@ document.addEventListener('click',event=>{
   });
   previewPastedLyrics(panel);
 });
+
+document.addEventListener('click',async event=>{
+  const button=event.target.closest('[data-recheck]');
+  if(!button)return;
+  button.disabled=true;
+  try{
+    const clip=clipMap.get(button.dataset.recheck);
+    const entry=await dbGet('songs',clip.id),draft=entry.clip;
+    const notes=new Map(draft.notes.map(n=>[n.id,n]));
+    let added=0;
+    for(const [page,image] of draft.images.entries()){
+      const systems=await readPrintedPage(image,page);
+      for(const system of systems){
+        for(const head of system.heads.filter(h=>h.hollow)){
+          if(image.notes.some(n=>Math.abs(n.x-head.x)<system.d && Math.abs(n.y-head.y)<system.d))continue;
+          const ordered=image.notes.slice().sort((a,b)=>a.x-b.x);
+          const right=ordered.find(n=>n.x>head.x),left=ordered.filter(n=>n.x<head.x).pop();
+          const start=left?notes.get(left.id).start_s:draft.start_s;
+          const end=right?notes.get(right.id).start_s:draft.end_s;
+          const fraction=left&&right?(head.x-left.x)/(right.x-left.x):.5;
+          const time=start+(end-start)*fraction,id=crypto.randomUUID();
+          image.notes.push({id,x:head.x,y:head.y,label_y:12});
+          notes.set(id,{id,pitch:'',start_s:time,end_s:time,relation:'unknown'});
+          added++;
+        }
+      }
+    }
+    if(!added){announce('No additional half notes found.');return}
+    draft.notes=[];
+    for(const image of draft.images){
+      image.notes.sort((a,b)=>a.x-b.x);
+      for(const pin of image.notes){
+        const note=notes.get(pin.id);
+        pin.number=note.index=draft.notes.length+1;
+        draft.notes.push(note);
+      }
+    }
+    await saveSheet(entry);
+    Object.assign(clip,{notes:draft.notes,images:draft.images});render();
+    announce('Added '+added+' half-note markers. Their playback times are interpolated.');
+  }catch(error){announce(error.message,true)}finally{button.disabled=false}
+});
