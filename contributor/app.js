@@ -29,7 +29,7 @@ async function storedClips(){
   const db=await dbReady;
   for(const entry of entries){
     const clip=entry.clip;
-    if(clip.pdfReference || clip.notes.length || clip.pitchVersion>=2)continue;
+    if(isOverview(clip) || clip.pdfReference || clip.notes.length || clip.pitchVersion>=2)continue;
     try{
       const decoder=new OfflineAudioContext(1,1,44100);
       const sound=await decoder.decodeAudioData(await entry.file.arrayBuffer());
@@ -42,6 +42,14 @@ async function storedClips(){
         tx.oncomplete=resolve;tx.onabort=()=>reject(tx.error);
       });
     }catch(error){console.warn('Could not refresh empty pitch map',error)}
+  }
+  // Earlier imports sometimes stored the full pages only on their first passage.
+  for(const entry of [...entries]){
+    const c=entry.clip,hash=c.source_hashes?.score_sha256;
+    if(!hash || (!c.fullScorePages && !c.writtenNotes) || entries.some(e=>isOverview(e.clip)&&e.clip.song_id===c.song_id&&e.clip.source_hashes?.score_sha256===hash))continue;
+    const overview={...c,id:c.song_id+'-overview-'+hash,kind:'overview',notes:[],images:c.fullScorePages||notation(c.writtenNotes)};
+    const source={...entry,clip:overview,created:entry.created-1};
+    await saveSheet(source);entries.unshift(source);
   }
   return entries.filter(entry=>entry.clip.notes.length || entry.clip.id!==entry.clip.song_id || !entries.some(other=>other.clip.song_id===entry.clip.id && other.clip.source_hashes?.score_sha256 && other.clip.id!==entry.clip.id)).map(playable);
 }
@@ -122,7 +130,7 @@ async function importBatch(files){
       }catch(e){errors.push(file.name+' â€” '+e.message)}
       render();
     }
-    $('overallCount').textContent=clips.length+' songs';announce(errors.join(' Â· '),!!errors.length);
+    updateProgress();announce(errors.join(' Â· '),!!errors.length);
   }finally{await context.close()}
 }
 $('songs').disabled=true;
@@ -224,7 +232,7 @@ async function attachScore(input,files,source){
     if(clipMap.has(id)){scrollToClip(clipMap.get(id));return}
     const entry=await dbGet('songs',source.id);
     const pdf=/\.pdf$/i.test(file.name);
-    const clip={...source,id,notes:[],pdfReference:pdf||screenshots,pitchVersion:3,score_role:file.name,source_hashes:{...entry.clip.source_hashes,score_sha256:hash}};
+    const clip={...source,id,kind:'overview',fullScorePages:undefined,originalKeys:undefined,notes:[],pdfReference:pdf||screenshots,pitchVersion:3,score_role:file.name,source_hashes:{...entry.clip.source_hashes,score_sha256:hash}};
     delete clip.writtenNotes;
     if(screenshots){
       clip.images=await screenshotPages(pages);
@@ -242,21 +250,9 @@ async function attachScore(input,files,source){
       const duration=media.duration;media.removeAttribute('src');media.load();
       const eligible=starts.filter(n=>n.time+offset<duration);
       if(!eligible.length)throw Error('The score starts outside the recording. Check the offset.');
-      const anchor=eligible.reduce((a,b)=>Math.abs(a.time+offset-clip.start_s)<=Math.abs(b.time+offset-clip.start_s)?a:b);
-      clip.start_s=anchor.time+offset;clip.end_s=Math.min(duration,clip.start_s+8);
-      clip.notes=eligible.filter(n=>n.time>=anchor.time && n.time+offset<clip.end_s).map((n,i)=>({...n,id:id+':'+(i+1),index:i+1,start_s:n.time+offset,end_s:Math.min(duration,n.time+offset+n.duration)}));
-      clip.images=notation(clip.notes);
-      clip.alignment_note='Written pitches from MusicXML · check playback alignment against the recording. Pitch map spacing is schematic.';
+      clip.images=notation(eligible);
     }
     delete clip.phraseImages;
-    if(clip.pdfReference){
-      announce('Aligning printed score to recording…');
-      await new Promise(resolve=>setTimeout(resolve,20));
-      try{
-        const decoder=new OfflineAudioContext(1,1,8000);
-        Object.assign(clip,await resolvePrintedPassage(clip,await decoder.decodeAudioData(await entry.file.arrayBuffer()),id));
-      }catch(error){clip.alignment_note=error.message+' Mark printed notes manually.'}
-    }
     const newEntry={...entry,created:Date.now(),clip};await saveSheet(newEntry);
     const live=playable(newEntry);if(source.id===source.song_id && !source.notes.length)clips=clips.filter(c=>c!==source);clips.push(live);clipMap.set(id,live);render();$('overallCount').textContent=new Set(clips.map(c=>c.song_id)).size+' songs';scrollToClip(live);announce('');
   }catch(e){announce(e.message,true)}finally{input.disabled=false;input.value=''}
@@ -318,7 +314,7 @@ async function anotherPassage(source){
   const entry=await dbGet('songs',source.id);
   const decoder=new OfflineAudioContext(1,1,8000);
   const buffer=await decoder.decodeAudioData(await entry.file.arrayBuffer());
-  const existing=clips.filter(c=>c.song_id===source.song_id);
+  const existing=clips.filter(c=>c.song_id===source.song_id&&!isOverview(c));
   const gaps=[];
   let cursor=0;
   for(const {start,end} of existing.map(bounds).sort((a,b)=>a.start-b.start)){
@@ -334,6 +330,7 @@ async function anotherPassage(source){
     announce('Reading printed noteheads and matching the recording…');
     await new Promise(resolve=>setTimeout(resolve,20));
     const clip=await resolvePrintedPassage(entry.clip,buffer,id);
+    clip.kind='passage';
     const next={...entry,created:Date.now(),clip};await storeSong(await dbReady,id,next);
     const live=playable(next);clips.push(live);clipMap.set(id,live);render();scrollToClip(live);announce('');return;
   }
@@ -362,7 +359,8 @@ async function anotherPassage(source){
   }
   if(!clip){announce('No remaining passage yielded 30 notes.');return}
   announce('');
-  const next={...entry,created:Date.now(),clip};await storeSong(await dbReady,id,next);
+  clip.kind='passage';
+    const next={...entry,created:Date.now(),clip};await storeSong(await dbReady,id,next);
   const live=playable(next);clips.push(live);clipMap.set(id,live);render();scrollToClip(live);
 }
 async function deleteSong(source){
