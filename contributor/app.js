@@ -29,7 +29,7 @@ async function storedClips(){
   const db=await dbReady;
   for(const entry of entries){
     const clip=entry.clip;
-    if(clip.notes.length || clip.pitchVersion===2)continue;
+    if(clip.pdfReference || clip.notes.length || clip.pitchVersion>=2)continue;
     try{
       const decoder=new OfflineAudioContext(1,1,44100);
       const sound=await decoder.decodeAudioData(await entry.file.arrayBuffer());
@@ -43,7 +43,7 @@ async function storedClips(){
       });
     }catch(error){console.warn('Could not refresh empty pitch map',error)}
   }
-  return entries.map(playable);
+  return entries.filter(entry=>entry.clip.notes.length || entry.clip.id!==entry.clip.song_id || !entries.some(other=>other.clip.song_id===entry.clip.id && other.clip.id!==entry.clip.id)).map(playable);
 }
 function storeSong(db,id,entry){
   return new Promise((resolve,reject)=>{
@@ -112,11 +112,12 @@ async function importBatch(files){
         const id=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');
         if(clipMap.has(id))continue;
         const existing=await dbGet('songs',id);
+        if(existing && clips.some(c=>c.song_id===id))continue;
         if(existing){clips.push(playable(existing));clipMap.set(id,clips.at(-1));continue}
         const buffer=await context.decodeAudioData(bytes);
-        const {start,end}=chooseWindow(buffer,id),events=await analyze(buffer,start,end);
+        const {start,end}=chooseWindow(buffer,id),events=[];
         const notes=makeNotes(events,id,start,end);
-        const clip={pitchVersion:2,id,song_id:id,title:file.name.replace(/\.[^.]+$/,''),start_s:start,end_s:end,notes,images:notation(notes),source_hashes:{audio_sha256:id},score_role:'Estimated pitch map',alignment_note:'Note spacing is schematic. Check pitch, attacks and instrumental sounds by ear.'};
+        const clip={pitchVersion:2,id,song_id:id,title:file.name.replace(/\.[^.]+$/,''),start_s:start,end_s:end,notes,images:notation(notes),source_hashes:{audio_sha256:id},score_role:'Waiting for reference score',alignment_note:'Import the sheet that goes with this recording.'};
         const entry={file,clip,created:Date.now()};await storeSong(db,id,entry);clips.push(playable(entry));clipMap.set(id,clips.at(-1));
       }catch(e){errors.push(file.name+' â€” '+e.message)}
       render();
@@ -131,3 +132,112 @@ $('songs').onchange=async e=>{
   try{await importBatch(Array.from(input.files))}catch(err){announce(err.message,true)}
   finally{input.value='';input.disabled=false}
 };
+
+function parseScore(text){
+  const doc=new DOMParser().parseFromString(text,'application/xml');
+  const parts=doc.querySelectorAll('score-partwise > part');
+  if(parts.length!==1 || doc.querySelector('parsererror, backup, forward, chord, repeat, ending'))throw Error('Use an unfolded, single-part, single-voice MusicXML melody.');
+  let divisions=1,bpm=120,time=0,last;
+  const notes=[];
+  for(const measure of parts[0].children){
+    for(const item of measure.children){
+      const tempo=item.matches('sound[tempo]')? item:item.querySelector('sound[tempo]');
+      if(tempo)bpm=Number(tempo.getAttribute('tempo'));
+      if(item.matches('attributes') && item.querySelector('divisions'))divisions=Number(item.querySelector('divisions').textContent);
+      if(!item.matches('note') || item.querySelector('grace'))continue;
+      const length=Number(item.querySelector('duration')?.textContent)/divisions*60/bpm;
+      if(!(length>0 && Number.isFinite(length)))throw Error('Unsupported note duration or tempo.');
+      const p=item.querySelector('pitch');
+      if(p){
+        const step=p.querySelector('step').textContent, alter=Number(p.querySelector('alter')?.textContent||0);
+        const pitch=step+({'-2':'bb','-1':'b','0':'','1':'#','2':'##'}[alter]??'?')+p.querySelector('octave').textContent;
+        if(item.querySelector('tie[type="stop"]') && last?.pitch===pitch)last.duration+=length;
+        else {last={time,pitch,duration:length,measure:measure.getAttribute('number'),midi:12*(Number(p.querySelector('octave').textContent)+1)+({C:0,D:2,E:4,F:5,G:7,A:9,B:11}[step])+alter};notes.push(last)}
+      }else last=null;
+      time+=length;
+    }
+  }
+  if(!notes.length)throw Error('No pitched notes in that file.');
+  return notes;
+}
+async function saveSheet(entry){
+  const db=await dbReady;
+  await new Promise((resolve,reject)=>{
+    const tx=db.transaction('songs','readwrite');
+    tx.objectStore('songs').put(entry,entry.clip.id);
+    tx.oncomplete=resolve;tx.onabort=()=>reject(tx.error);
+  });
+}
+async function pdfImages(file){
+  const pdfjs=await import('./vendor/pdf.min.js');
+  pdfjs.GlobalWorkerOptions.workerSrc=new URL('./vendor/pdf.worker.min.js',location.href).href;
+  const pdf=await pdfjs.getDocument({data:await file.arrayBuffer(),isEvalSupported:false}).promise;
+  const images=[];
+  try{
+    for(let i=1;i<=pdf.numPages;i++){
+      const page=await pdf.getPage(i),base=page.getViewport({scale:1});
+      const viewport=page.getViewport({scale:1200/base.width});
+      const canvas=document.createElement('canvas');
+      canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);
+      await page.render({canvasContext:canvas.getContext('2d'),viewport}).promise;
+      images.push({width:canvas.width,height:canvas.height,url:canvas.toDataURL('image/webp',.9),notes:[]});
+      page.cleanup();
+    }
+  }finally{await pdf.destroy()}
+  return images;
+}
+document.addEventListener('change',async event=>{
+  const input=event.target;if(!input.matches('[data-sheet]')||!input.files.length)return;
+  const file=input.files[0],source=clipMap.get(input.dataset.sheet);
+  input.disabled=true;
+  try{
+    const offset=Number(input.closest('.row').querySelector('[data-offset]').value);
+    if(!Number.isFinite(offset))throw Error('Enter the score start time in seconds.');
+    const bytes=await file.arrayBuffer();
+    const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');
+    const id=source.song_id+'-'+hash+'-'+offset;
+    if(clipMap.has(id)){scrollToClip(clipMap.get(id));return}
+    const entry=await dbGet('songs',source.song_id);
+    const pdf=/\.pdf$/i.test(file.name);
+    const clip={...entry.clip,id,notes:[],pdfReference:pdf,pitchVersion:3,score_role:file.name,source_hashes:{...entry.clip.source_hashes,score_sha256:hash}};
+    if(pdf){
+      clip.images=await pdfImages(file);
+      clip.alignment_note='Original PDF · select the printed notes you hear in the loop.';
+    }else{
+      const notes=parseScore(new TextDecoder().decode(bytes));
+      const starts=notes.filter(n=>n.time+offset>=0);
+      const media=new Audio();media.preload='metadata';media.src=source.audio_url;
+      await new Promise((yes,no)=>{media.onloadedmetadata=yes;media.onerror=()=>no(Error('Could not read song duration'))});
+      const duration=media.duration;media.removeAttribute('src');media.load();
+      const eligible=starts.filter(n=>n.time+offset<duration);
+      if(!eligible.length)throw Error('The score starts outside the recording. Check the offset.');
+      const anchor=eligible.reduce((a,b)=>Math.abs(a.time+offset-clip.start_s)<=Math.abs(b.time+offset-clip.start_s)?a:b);
+      clip.start_s=anchor.time+offset;clip.end_s=Math.min(duration,clip.start_s+20);
+      clip.notes=eligible.filter(n=>n.time>=anchor.time && n.time+offset<clip.end_s).map((n,i)=>({...n,id:id+':'+(i+1),index:i+1,start_s:n.time+offset,end_s:Math.min(duration,n.time+offset+n.duration)}));
+      clip.images=notation(clip.notes);
+      clip.alignment_note='Written pitches from MusicXML · check playback alignment against the recording. Pitch map spacing is schematic.';
+    }
+    const newEntry={...entry,created:Date.now(),clip};await saveSheet(newEntry);
+    const live=playable(newEntry);if(source.id===source.song_id && !source.notes.length)clips=clips.filter(c=>c!==source);clips.push(live);clipMap.set(id,live);render();$('overallCount').textContent=new Set(clips.map(c=>c.song_id)).size+' songs';scrollToClip(live);announce('');
+  }catch(e){announce(e.message,true)}finally{input.disabled=false;input.value=''}
+});
+document.addEventListener('click',async event=>{
+  if(!event.target.matches('[data-score-page] img'))return;
+  const article=event.target.closest('[data-clip]'),clip=clipMap.get(article.dataset.clip);
+  if(!clip.pdfReference)return;
+  const t=audio.currentTime,b=bounds(clip);
+  if(active!==clip || t<b.start || t>b.end){announce('Play this reference phrase and pause at the note you want to label.');return}
+  audio.pause();
+  const page=Number(event.target.closest('[data-score-page]').dataset.scorePage),rect=event.target.getBoundingClientRect(),image=clip.images[page];
+  const index=clip.notes.length+1,id=clip.id+':'+crypto.randomUUID();
+  const x=(event.clientX-rect.left)/rect.width*image.width,y=(event.clientY-rect.top)/rect.height*image.height;
+  clip.notes.push({id,index,pitch:'',start_s:t,end_s:t});
+  image.notes.push({id,number:index,x,y,label_y:Math.max(12,y-30)});
+  try{
+    const entry=await dbGet('songs',clip.id);
+    const {audio_url,...persisted}=clip;entry.clip=persisted;await saveSheet(entry);
+    render();selectNote(id);
+  }catch(e){announce(e.message,true)}
+});
+
+
