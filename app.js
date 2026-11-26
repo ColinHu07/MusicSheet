@@ -220,6 +220,10 @@ async function attachScore(input,files,source){
       bytes=digests;
     }
     const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');
+    if(new URLSearchParams(location.search).get('annotator')==='original'){
+      location.assign(originalAnnotatorURL(source.song_id,hash));
+      return;
+    }
     const id=source.id+'-'+hash+'-'+offset;
     if(clipMap.has(id)){scrollToClip(clipMap.get(id));return}
     const entry=await dbGet('songs',source.id);
@@ -423,3 +427,8 @@ document.addEventListener('click',async event=>{
     if(error.name!=='AbortError')input.click();
   }
 });
+
+
+function originalAnnotatorURL(audioHash,scoreHash){
+  return 'http://127.0.0.1:18892/#'+audioHash+'-'+scoreHash;
+}
