@@ -186,9 +186,7 @@ async function pdfImages(file){
   }finally{await pdf.destroy()}
   return images;
 }
-document.addEventListener('change',async event=>{
-  const input=event.target;if(!input.matches('[data-sheet]')||!input.files.length)return;
-  const file=input.files[0],source=clipMap.get(input.dataset.sheet);
+async function attachScore(input,file,source){
   input.disabled=true;
   try{
     const offset=Number(input.closest('.row').querySelector('[data-offset]').value);
@@ -220,7 +218,30 @@ document.addEventListener('change',async event=>{
     const newEntry={...entry,created:Date.now(),clip};await saveSheet(newEntry);
     const live=playable(newEntry);if(source.id===source.song_id && !source.notes.length)clips=clips.filter(c=>c!==source);clips.push(live);clipMap.set(id,live);render();$('overallCount').textContent=new Set(clips.map(c=>c.song_id)).size+' songs';scrollToClip(live);announce('');
   }catch(e){announce(e.message,true)}finally{input.disabled=false;input.value=''}
+}
+document.addEventListener('change',event=>{
+  const input=event.target;
+  if(input.matches('[data-sheet]') && input.files.length)attachScore(input,input.files[0],clipMap.get(input.dataset.sheet));
 });
+$('scoreFirst').onchange=()=>{
+  const file=$('scoreFirst').files[0];
+  $('pairSongLabel').hidden=!file;
+  if(file)announce('Choose the matching recording for '+file.name);
+};
+$('pairSong').onchange=async()=>{
+  const song=$('pairSong').files[0],sheet=$('scoreFirst').files[0];
+  if(!song||!sheet)return;
+  $('pairSong').disabled=$('scoreFirst').disabled=true;
+  try{
+    const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',await song.arrayBuffer())),b=>b.toString(16).padStart(2,'0')).join('');
+    await importBatch([song]);
+    const clip=clips.find(c=>c.song_id===hash);
+    if(!clip)throw Error('Could not import the matching recording.');
+    const input=document.querySelector('[data-sheet="'+clip.id+'"]');
+    await attachScore(input,sheet,clip);
+  }catch(error){announce(error.message,true)}
+  finally{$('pairSong').disabled=$('scoreFirst').disabled=false;$('pairSong').value=$('scoreFirst').value='';$('pairSongLabel').hidden=true}
+};
 document.addEventListener('click',async event=>{
   if(!event.target.matches('[data-score-page] img'))return;
   const article=event.target.closest('[data-clip]'),clip=clipMap.get(article.dataset.clip);
