@@ -89,6 +89,7 @@ async function printedPassage(source,buffer,id){
       const group=heads.filter(n=>n.x>=bars[j-1]&&n.x<bars[j]);
       const first=group[0]?.x??bars[j-1];
       for(const n of group){
+        n.measure=bar+1;
         n.beat=4*(bar+(n.x-first)/Math.max(1,bars[j]-first));
         const scale=[0,2,4,5,7,9,11],degree=n.step+2;
         n.midi=60+12*Math.floor(degree/7)+scale[(degree%7+7)%7];
@@ -165,18 +166,21 @@ async function printedPassage(source,buffer,id){
     const {top,d,heads,canvas}=system;
     const y=Math.max(0,Math.floor(Math.min(top,...heads.map(n=>n.y))-4*d));
     const bottom=Math.min(canvas.height,Math.ceil(Math.max(top+4*d,...heads.map(n=>n.y))+3*d));
-    const crop=document.createElement('canvas');crop.width=canvas.width;crop.height=bottom-y;
-    crop.getContext('2d').drawImage(canvas,0,-y);
+    const crop=document.createElement('canvas');crop.width=canvas.width;const labelBand=54;crop.height=bottom-y+labelBand;
+    const ctx=crop.getContext('2d');ctx.fillStyle='white';ctx.fillRect(0,0,crop.width,crop.height);ctx.drawImage(canvas,0,y,canvas.width,bottom-y,0,labelBand,canvas.width,bottom-y);
     const pins=[];
     for(const n of heads.filter(n=>Number.isFinite(n.beat))){
       const index=notes.length+1,noteId=id+':'+index,time=n.time;
-      notes.push({id:noteId,index,pitch:'',start_s:time,end_s:time});
-      pins.push({id:noteId,number:index,x:n.x,y:n.y-y,label_y:10+index%3*14});
+      notes.push({id:noteId,index,measure:n.measure,pitch:'',start_s:time,end_s:time});
+      pins.push({id:noteId,number:index,x:n.x,y:n.y-y+labelBand,label_y:12+index%3*17});
     }
     images.push({url:crop.toDataURL(),width:crop.width,height:crop.height,notes:pins});
   }
   const last=notes.at(-1);
-  return {...source,id,alignmentTempo:60/best.beat,alignmentOffset:best.t,fullScorePages:pages,phraseImages:undefined,notes,images,start_s:notes[0].start_s,end_s:Math.min(buffer.duration,last.start_s+best.beat),alignment_note:'Printed score · estimated audio alignment. Check the loop by ear.'};
+  const finalHead=chosen.at(-1).heads.filter(n=>Number.isFinite(n.time)).at(-1);
+  const following=all[all.indexOf(finalHead)+1];
+  const boundary=following?following.time:last.start_s+best.beat;
+  return {...source,id,alignmentTempo:60/best.beat,alignmentOffset:best.t,fullScorePages:pages,phraseImages:undefined,notes,images,start_s:notes[0].start_s,end_s:Math.min(buffer.duration,boundary),alignment_note:'Printed score · estimated audio alignment. Check the loop by ear.'};
 }
 
 
