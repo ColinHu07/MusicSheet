@@ -43,7 +43,7 @@ async function storedClips(){
       });
     }catch(error){console.warn('Could not refresh empty pitch map',error)}
   }
-  return entries.filter(entry=>entry.clip.notes.length || entry.clip.id!==entry.clip.song_id || !entries.some(other=>other.clip.song_id===entry.clip.id && other.clip.id!==entry.clip.id)).map(playable);
+  return entries.filter(entry=>entry.clip.notes.length || entry.clip.id!==entry.clip.song_id || !entries.some(other=>other.clip.song_id===entry.clip.id && other.clip.source_hashes?.score_sha256 && other.clip.id!==entry.clip.id)).map(playable);
 }
 function storeSong(db,id,entry){
   return new Promise((resolve,reject)=>{
@@ -193,16 +193,17 @@ async function attachScore(input,file,source){
     if(!Number.isFinite(offset))throw Error('Enter the score start time in seconds.');
     const bytes=await file.arrayBuffer();
     const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');
-    const id=source.song_id+'-'+hash+'-'+offset;
+    const id=source.id+'-'+hash+'-'+offset;
     if(clipMap.has(id)){scrollToClip(clipMap.get(id));return}
     const entry=await dbGet('songs',source.song_id);
     const pdf=/\.pdf$/i.test(file.name);
-    const clip={...entry.clip,id,notes:[],pdfReference:pdf,pitchVersion:3,score_role:file.name,source_hashes:{...entry.clip.source_hashes,score_sha256:hash}};
+    const clip={...source,id,notes:[],pdfReference:pdf,pitchVersion:3,score_role:file.name,source_hashes:{...entry.clip.source_hashes,score_sha256:hash}};
     if(pdf){
       clip.images=await pdfImages(file);
       clip.alignment_note='Original PDF · select the printed notes you hear in the loop.';
     }else{
       const notes=parseScore(new TextDecoder().decode(bytes));
+      clip.writtenNotes=notes;clip.scoreOffset=offset;
       const starts=notes.filter(n=>n.time+offset>=0);
       const media=new Audio();media.preload='metadata';media.src=source.audio_url;
       await new Promise((yes,no)=>{media.onloadedmetadata=yes;media.onerror=()=>no(Error('Could not read song duration'))});
@@ -262,3 +263,75 @@ document.addEventListener('click',async event=>{
 });
 
 
+async function anotherPassage(source){
+  const entry=await dbGet('songs',source.id);
+  const decoder=new OfflineAudioContext(1,1,8000);
+  const buffer=await decoder.decodeAudioData(await entry.file.arrayBuffer());
+  const existing=clips.filter(c=>c.song_id===source.song_id);
+  const gaps=[];
+  let cursor=0;
+  for(const {start,end} of existing.map(bounds).sort((a,b)=>a.start-b.start)){
+    if(start>cursor)gaps.push([cursor,start]);
+    cursor=Math.max(cursor,end);
+  }
+  if(cursor<buffer.duration)gaps.push([cursor,buffer.duration]);
+  const id=crypto.randomUUID(), offset=source.scoreOffset||0;
+  if(source.source_hashes.score_sha256 && !source.pdfReference && !source.writtenNotes){
+    announce('Reimport this MusicXML score once to use its full melody for additional passages.');return;
+  }
+  const candidates=gaps.filter(([a,b])=>b-a>=2).map(([a,b])=>{
+    const starts=source.writtenNotes?.map(n=>n.time+offset).filter(t=>t>=a && t<b-1);
+    if(starts && !starts.length)return null;
+    const start=starts?starts[Math.floor(Math.random()*starts.length)]:a+Math.random()*Math.max(0,b-a-20);
+    return {start,end:Math.min(start+20,b)};
+  }).filter(Boolean);
+  if(!candidates.length){announce('The remaining music has no suitable unreviewed passage.');return}
+  const {start,end}=candidates[Math.floor(Math.random()*candidates.length)];
+  const clip={...entry.clip,id,start_s:start,end_s:end,notes:[],images:[],pitchVersion:3};
+  if(source.pdfReference)clip.images=source.images.map(image=>({...image,notes:[]}));
+  if(source.writtenNotes){
+    clip.notes=source.writtenNotes.filter(n=>n.time+offset>=start && n.time+offset<end).map((n,i)=>({...n,id:id+':'+(i+1),index:i+1,start_s:n.time+offset,end_s:Math.min(end,n.time+offset+n.duration)}));
+    clip.images=notation(clip.notes);
+  }
+  const next={...entry,created:Date.now(),clip};await storeSong(await dbReady,id,next);
+  const live=playable(next);clips.push(live);clipMap.set(id,live);render();scrollToClip(live);
+}
+async function deleteSong(source){
+  if(!confirm('Delete “'+source.title+'” and all its saved passages and labels from this browser?'))return;
+  await save();if(dirty||saving||conflicted)throw Error('Finish saving before deleting this song.');
+  const db=await dbReady, expected=revision;
+  const remaining=copy(state);
+  await new Promise((resolve,reject)=>{
+    const tx=db.transaction(['songs','settings'],'readwrite'),songs=tx.objectStore('songs'),settings=tx.objectStore('settings');
+    const req=settings.get('review');
+    req.onsuccess=()=>{
+      if((req.result?.revision||0)!==expected){tx.abort();return}
+      const scan=songs.openCursor();
+      scan.onsuccess=()=>{
+        const cursor=scan.result;
+        if(!cursor){settings.put({revision:expected+1,data:remaining},'review');return}
+        const c=cursor.value.clip;
+        if(c.song_id===source.song_id){
+          cursor.delete();delete remaining.clips[c.id];
+          for(const [key,r] of Object.entries(remaining.records))if(r.clip_id===c.id)delete remaining.records[key];
+        }
+        cursor.continue();
+      };
+    };
+    tx.oncomplete=resolve;tx.onabort=()=>reject(Error('Could not delete. Reload the notebook and retry.'));
+  });
+  if(active?.song_id===source.song_id){audio.pause();audio.removeAttribute('src');audio.load();active=null;$('playerTitle').textContent='Choose a phrase below';$('playerRange').textContent='';$('replay').disabled=$('back').disabled=true}
+  for(const [id,c] of clipMap)if(c.song_id===source.song_id){clipMap.delete(id);URL.revokeObjectURL(c.audio_url)}
+  clips=clips.filter(c=>c.song_id!==source.song_id);revision=expected+1;applyState(remaining);backup();
+  $('overallCount').textContent=new Set(clips.map(c=>c.song_id)).size+' songs';
+  if(!clips.length){$('progressText').textContent='Import songs to begin.';$('progressBar').style.width='0%'}
+  announce('Song deleted.');
+}
+document.addEventListener('click',async event=>{
+  const button=event.target.closest('[data-more],[data-delete-song]');if(!button)return;
+  button.disabled=true;
+  try{
+    if(button.dataset.more)await anotherPassage(clipMap.get(button.dataset.more));
+    else await deleteSong(clipMap.get(button.dataset.deleteSong));
+  }catch(error){announce(error.message,true)}finally{button.disabled=false}
+});
