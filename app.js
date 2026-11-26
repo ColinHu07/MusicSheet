@@ -506,16 +506,62 @@ document.addEventListener('click',async event=>{
     }
     if(!added){announce('No additional half notes found.');return}
     draft.notes=[];
+    const indexed=new Set();
     for(const image of draft.images){
       image.notes.sort((a,b)=>a.x-b.x);
       for(const pin of image.notes){
         const note=notes.get(pin.id);
-        pin.number=note.index=draft.notes.length+1;
-        draft.notes.push(note);
+        if(!indexed.has(note.id)){
+          note.index=draft.notes.length+1;draft.notes.push(note);indexed.add(note.id);
+        }
+        pin.number=note.index;
       }
     }
     await saveSheet(entry);
     Object.assign(clip,{notes:draft.notes,images:draft.images});render();
     announce('Added '+added+' half-note markers. Their playback times are interpolated.');
+  }catch(error){announce(error.message,true)}finally{button.disabled=false}
+});
+
+function labeledTiePairs(clip){
+  const pairs=[];
+  if(!clip.fullScorePages || clip.originalKeys)return pairs;
+  for(const image of clip.images){
+    const pins=image.notes;
+    for(let i=1;i<pins.length;i++){
+      const left=pins[i-1],right=pins[i];
+      const first=record(left.id),next=record(right.id);
+      if(left.id!==right.id && Math.abs(left.y-right.y)<1 && next.relation==='continuation' &&
+         next.syllable && next.syllable===first.syllable)pairs.push({left,right,label:next.syllable});
+    }
+  }
+  return pairs;
+}
+function tieRepairButtons(clip){
+  return [...new Set(labeledTiePairs(clip).map(pair=>pair.label))].map(label=>
+    '<button data-group-ties="'+esc(label)+'">Group tied '+esc(label)+' heads</button>').join('');
+}
+document.addEventListener('click',async event=>{
+  const button=event.target.closest('[data-group-ties]');
+  if(!button)return;
+  button.disabled=true;
+  try{
+    const clip=clipMap.get(button.closest('[data-clip]').dataset.clip);
+    const entry=await dbGet('songs',clip.id),draft=entry.clip;
+    const notes=new Map(draft.notes.map(note=>[note.id,note]));
+    for(const {left,right,label} of labeledTiePairs(draft)){
+      if(label!==button.dataset.groupTies)continue;
+      const parent=notes.get(left.id),child=notes.get(right.id);
+      (parent.tiedSourceNotes??=[]).push({...child,annotation:{...record(child.id)}});
+      parent.end_s=Math.max(parent.end_s,child.end_s);
+      notes.delete(child.id);
+      for(const image of draft.images)for(const pin of image.notes)if(pin.id===child.id)pin.id=parent.id;
+    }
+    draft.notes=[...notes.values()];
+    draft.notes.forEach((note,i)=>note.index=i+1);
+    for(const image of draft.images)for(const pin of image.notes)pin.number=notes.get(pin.id).index;
+    await saveSheet(entry);
+    Object.assign(clip,{notes:draft.notes,images:draft.images});
+    render();announce('Tied heads grouped. Original annotations retained.');
   }catch(error){announce(error.message,true)}finally{button.disabled=false}
 });

@@ -1,4 +1,29 @@
 // Read single treble staves from printed pages. Positions stay in original image pixels.
+// Match a shallow curved ink stroke between adjacent heads at the same staff position.
+function printedTie(left,right,d,ink){
+  if(left.step!==right.step || right.x-left.x<1.4*d)return false;
+  const span=right.x-left.x;
+  for(const side of [-1,1]){
+    // Fit both shoulders and the crown. A beam or staff line has no crown.
+    for(let shoulder=.38;shoulder<=1.3;shoulder+=.09){
+      for(let rise=.32;rise<=1.26;rise+=.09){
+        let hits=0,clear=0,shoulders=0,crown=0;
+        for(let i=0;i<=16;i++){
+          const inset=span<2.3*d?.35*d:.22*d;
+          const t=i/16,x=left.x+inset+t*(span-2*inset);
+          const y=left.y+side*d*(shoulder+4*t*(1-t)*rise);
+          if(![-.07,0,.07].some(offset=>ink(x,y+offset*d)))continue;
+          hits++;
+          if(!ink(x,y-.30*d)&&!ink(x,y+.30*d))clear++;
+          if(i<=3||i>=13)shoulders++;
+          if(i>=6&&i<=10)crown++;
+        }
+        if(hits>=15 && clear>=10 && shoulders>=6 && crown>=4)return true;
+      }
+    }
+  }
+  return false;
+}
 async function readPrintedPage(page,pageIndex){
   const img=new Image();img.src=page.url;await img.decode();
   const canvas=document.createElement('canvas');canvas.width=page.width;canvas.height=page.height;
@@ -115,6 +140,7 @@ async function readPrintedPage(page,pageIndex){
     }
     for(const n of candidates.filter(n=>n.hollow || exemplars.length<4 || n.shape>=.82).sort((a,b)=>(b.shape-a.shape)*50+b.quality-a.quality))if(!heads.some(o=>Math.abs(o.x-n.x)<.88*d))heads.push(n);
     heads.sort((a,b)=>a.x-b.x);
+    for(let j=1;j<heads.length;j++)heads[j].tied=printedTie(heads[j-1],heads[j],d,ink);
     if(heads.length)systems.push({pageIndex,top,d,bars,heads,canvas});
   }
   return systems;
@@ -206,7 +232,7 @@ async function printedPassage(source,buffer,id){
   for(let i=0;i<systems.length;i++){
     let count=0;
     for(let j=i;j<systems.length;j++){
-      count+=systems[j].heads.length;
+      count+=systems[j].heads.filter(n=>!n.tied).length;
       if(count>=30){
         const slice=systems.slice(i,j+1);
         const events=slice.flatMap(s=>s.heads).filter(n=>Number.isFinite(n.time));
@@ -227,16 +253,20 @@ async function printedPassage(source,buffer,id){
     const ctx=crop.getContext('2d');ctx.fillStyle='white';ctx.fillRect(0,0,crop.width,crop.height);ctx.drawImage(canvas,0,y,canvas.width,bottom-y,0,labelBand,canvas.width,bottom-y);
     const pins=[];
     for(const n of heads.filter(n=>Number.isFinite(n.beat))){
-      const index=notes.length+1,noteId=id+':'+index,time=n.time;
-      notes.push({id:noteId,index,measure:n.measure,pitch:'',start_s:time,end_s:time});
-      pins.push({id:noteId,number:index,x:n.x,y:n.y-y+labelBand,label_y:12+index%3*17});
+      let note=notes.at(-1);
+      if(!n.tied || !pins.length){
+        const index=notes.length+1;
+        note={id:id+':'+index,index,measure:n.measure,pitch:'',start_s:n.time,end_s:n.time};
+        notes.push(note);
+      }else note.end_s=n.time;
+      pins.push({id:note.id,number:note.index,x:n.x,y:n.y-y+labelBand,label_y:12+pins.length%3*17});
     }
     images.push({url:crop.toDataURL(),width:crop.width,height:crop.height,notes:pins});
   }
   const last=notes.at(-1);
   const finalHead=chosen.at(-1).heads.filter(n=>Number.isFinite(n.time)).at(-1);
   const following=all[all.indexOf(finalHead)+1];
-  const boundary=following?following.time:last.start_s+best.beat;
+  const boundary=following?following.time:last.end_s+best.beat;
   return {...source,id,alignmentTempo:60/best.beat,alignmentOffset:best.t,fullScorePages:pages,phraseImages:undefined,notes,images,start_s:notes[0].start_s,end_s:Math.min(buffer.duration,boundary),alignment_note:'Printed score · estimated audio alignment. Check the loop by ear.'};
 }
 
