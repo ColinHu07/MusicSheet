@@ -248,6 +248,14 @@ async function attachScore(input,files,source){
       clip.alignment_note='Written pitches from MusicXML · check playback alignment against the recording. Pitch map spacing is schematic.';
     }
     delete clip.phraseImages;
+    if(clip.pdfReference){
+      announce('Aligning printed score to recording…');
+      await new Promise(resolve=>setTimeout(resolve,20));
+      try{
+        const decoder=new OfflineAudioContext(1,1,8000);
+        Object.assign(clip,await printedPassage(clip,await decoder.decodeAudioData(await entry.file.arrayBuffer()),id));
+      }catch(error){clip.alignment_note=error.message+' Mark printed notes manually.'}
+    }
     const newEntry={...entry,created:Date.now(),clip};await saveSheet(newEntry);
     const live=playable(newEntry);if(source.id===source.song_id && !source.notes.length)clips=clips.filter(c=>c!==source);clips.push(live);clipMap.set(id,live);render();$('overallCount').textContent=new Set(clips.map(c=>c.song_id)).size+' songs';scrollToClip(live);announce('');
   }catch(e){announce(e.message,true)}finally{input.disabled=false;input.value=''}
@@ -317,17 +325,9 @@ async function anotherPassage(source){
     announce('Reimport this MusicXML score once to use its full melody for additional passages.');return;
   }
   if(source.pdfReference){
-    const pins=new Set(source.images.flatMap(image=>image.notes.map(marker=>marker.id)));
-    const notes=source.notes.filter(n=>pins.has(n.id)).sort((a,b)=>a.start_s-b.start_s);
-    if(notes.length<30){
-      announce('This image has '+notes.length+' timed printed notes. Mark 30 on the score, or import MusicXML to pick a passage automatically.');return;
-    }
-    const first=Math.floor(Math.random()*(notes.length-29));
-    const selection=notes.slice(first,first+30);
-    const mapped=new Map(selection.map((note,i)=>[note.id,{...note,id:id+':'+(i+1),index:i+1}]));
-    const images=source.images.map(image=>({...image,notes:image.notes.filter(n=>mapped.has(n.id)).map(n=>({...n,id:mapped.get(n.id).id,number:mapped.get(n.id).index}))})).filter(image=>image.notes.length);
-    const clip={...entry.clip,id,images,notes:[...mapped.values()],start_s:selection[0].start_s,end_s:Math.min(buffer.duration,notes[first+30]?.start_s??Math.max(selection[29].end_s,selection[29].start_s+.5))};
-    delete clip.phraseImages;
+    announce('Reading printed noteheads and matching the recording…');
+    await new Promise(resolve=>setTimeout(resolve,20));
+    const clip=await printedPassage(entry.clip,buffer,id);
     const next={...entry,created:Date.now(),clip};await storeSong(await dbReady,id,next);
     const live=playable(next);clips.push(live);clipMap.set(id,live);render();scrollToClip(live);announce('');return;
   }
