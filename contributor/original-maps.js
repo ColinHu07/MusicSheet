@@ -62,9 +62,6 @@ async function originalPassage(source,id){
 async function resolvePrintedPassage(source,buffer,id){
   const original=await originalPassage(source,id);
   if(original)return original;
-  if(await originalLibrary()){
-    throw Error('No matching original note map for this recording and score. Select the corresponding original PDF or original page images.');
-  }
   const result=await printedPassage(source,buffer,id);
   result.alignment_note='Raster detector · estimated printed heads and audio timing. Load original maps to use the 17-song extractor results.';
   return result;
