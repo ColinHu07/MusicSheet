@@ -39,7 +39,11 @@ async function readPrintedPage(page,pageIndex){
         let flankSpace=0;
         for(const side of [-1,1])for(const dy of [-.24,.24])
           if(!ink(x+side*.85*d,y+dy*d))flankSpace++;
-        if(inside>=5&&outside>=4&&flankSpace===4){
+        // Half notes have a light diagonal channel between two dark arcs.
+        const hollow=ink(x-.33*d,y-.12*d)&&ink(x+.33*d,y+.12*d)
+          &&ink(x-.19*d,y-.34*d)&&ink(x+.19*d,y+.34*d)
+          &&!ink(x-.16*d,y+.15*d)&&!ink(x+.16*d,y-.15*d);
+        if((inside>=5||hollow)&&outside>=4&&flankSpace===4){
           let stem=false;
           for(const side of [-1,1])for(let dx=.36;dx<=.74;dx+=.08){
             let hits=0;for(let k=0;k<5;k++)if(pixels[4*(Math.round(y-side*(.72+.29*k)*d)*w+Math.round(x+side*dx*d))]<205)hits++;
@@ -51,7 +55,7 @@ async function readPrintedPage(page,pageIndex){
             if(thin>=2 && hits>=4 && !ink(x+side*dx*d,y+side*.86*d)
                 && pixels[4*(Math.round(y-side*2.3*d)*w+Math.round(x+side*dx*d))]<205)stem=true;
           }
-          if(stem)candidates.push({x,y,step,quality:outside+Number(ink(x-.49*d,y+.18*d))+Number(ink(x+.49*d,y-.18*d))});
+          if(stem)candidates.push({x,y,step,hollow,quality:outside+Number(ink(x-.49*d,y+.18*d))+Number(ink(x+.49*d,y-.18*d))});
         }
       }
     }
