@@ -322,18 +322,18 @@ async function anotherPassage(source){
   const candidates=[];
   for(const [a,b] of gaps){
     for(let start=a;start+6<=b;start+=8){
-      candidates.push({start,end:Math.min(start+16,b)});
+      candidates.push({start,end:Math.min(start+40,b)});
     }
   }
   let clip;
-  announce('Looking for a passage with at least 12 notes…');
+  announce('Looking for a passage with at least 30 notes…');
   while(candidates.length){
     const index=Math.floor(Math.random()*candidates.length);
     const {start,end}=candidates.splice(index,1)[0];
     const notes=source.writtenNotes
       ? source.writtenNotes.filter(n=>n.time+offset>=start && n.time+offset<end).map((n,i)=>({...n,id:id+':'+(i+1),index:i+1,start_s:n.time+offset,end_s:Math.min(end,n.time+offset+n.duration)}))
       : makeNotes(await analyze(buffer,start,end),id,start,end);
-    if(notes.length<12)continue;
+    if(notes.length<30)continue;
     clip={...entry.clip,id,start_s:start,end_s:end,notes,images:[],pitchVersion:3};
     if(source.writtenNotes)clip.images=notation(notes);
     else{
@@ -342,7 +342,7 @@ async function anotherPassage(source){
     }
     break;
   }
-  if(!clip){announce('No remaining passage yielded 12 notes.');return}
+  if(!clip){announce('No remaining passage yielded 30 notes.');return}
   announce('');
   const next={...entry,created:Date.now(),clip};await storeSong(await dbReady,id,next);
   const live=playable(next);clips.push(live);clipMap.set(id,live);render();scrollToClip(live);
