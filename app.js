@@ -287,12 +287,17 @@ document.addEventListener('click',async event=>{
   if(!event.target.matches('[data-score-page] img'))return;
   const article=event.target.closest('[data-clip]'),clip=clipMap.get(article.dataset.clip);
   if(!clip.pdfReference)return;
-  const t=audio.currentTime,b=bounds(clip);
-  if(active!==clip || t<b.start || t>b.end){announce('Play this reference phrase and pause at the note you want to label.');return}
-  audio.pause();
   const page=Number(event.target.closest('[data-score-page]').dataset.scorePage),rect=event.target.getBoundingClientRect(),image=clip.images[page];
-  const index=clip.notes.length+1,id=clip.id+':'+crypto.randomUUID();
   const x=(event.clientX-rect.left)/rect.width*image.width,y=(event.clientY-rect.top)/rect.height*image.height;
+  const distance=pin=>Math.hypot((pin.x-x)*rect.width/image.width,(pin.y-y)*rect.height/image.height);
+  const nearest=image.notes.reduce((best,pin)=>!best||distance(pin)<distance(best)?pin:best,null);
+  if(nearest && distance(nearest)<=8){selectNote(nearest.id);return}
+  const placement=article.querySelector('[data-place-pin]');
+  if(!placement?.checked)return;
+  const t=audio.currentTime,b=bounds(clip);
+  if(active!==clip || !audio.paused || t<b.start || t>b.end){announce('Pause the phrase at the missing note first.');return}
+  placement.checked=false;
+  const index=Math.max(0,...clip.notes.map(n=>n.index))+1,id=clip.id+':'+crypto.randomUUID();
   clip.notes.push({id,index,pitch:'',start_s:t,end_s:t});
   image.notes.push({id,number:index,x,y,label_y:Math.max(12,y-30)});
   try{
@@ -428,3 +433,18 @@ document.addEventListener('click',async event=>{
 function originalAnnotatorURL(audioHash,scoreHash){
   return 'http://127.0.0.1:18892/#'+audioHash+'-'+scoreHash;
 }
+
+document.addEventListener('click',async event=>{
+  const button=event.target.closest('[data-remove-pin]');
+  if(!button)return;
+  const clip=clipMap.get(button.closest('[data-clip]').dataset.clip),id=button.dataset.removePin;
+  if(!confirm('Remove this manually placed marker and its label?'))return;
+  try{
+    const entry=await dbGet('songs',clip.id);
+    entry.clip.notes=entry.clip.notes.filter(note=>note.id!==id);
+    for(const image of entry.clip.images)image.notes=image.notes.filter(pin=>pin.id!==id);
+    await saveSheet(entry);
+    Object.assign(clip,{notes:entry.clip.notes,images:entry.clip.images});
+    delete state.records[id];changed();render();
+  }catch(error){announce(error.message,true)}
+});
