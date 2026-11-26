@@ -24,7 +24,27 @@ async function writeReview(expected,data){
   });
 }
 function playable(entry){return {...entry.clip,audio_url:URL.createObjectURL(entry.file)}}
-async function storedClips(){return (await dbGet('songs')).sort((a,b)=>a.created-b.created).map(playable)}
+async function storedClips(){
+  const entries=(await dbGet('songs')).sort((a,b)=>a.created-b.created);
+  const db=await dbReady;
+  for(const entry of entries){
+    const clip=entry.clip;
+    if(clip.notes.length || clip.pitchVersion===2)continue;
+    try{
+      const decoder=new OfflineAudioContext(1,1,44100);
+      const sound=await decoder.decodeAudioData(await entry.file.arrayBuffer());
+      const events=await analyze(sound,clip.start_s,clip.end_s);
+      const notes=makeNotes(events,clip.id,clip.start_s,clip.end_s);
+      Object.assign(clip,{notes,images:notation(notes),pitchVersion:2});
+      await new Promise((resolve,reject)=>{
+        const tx=db.transaction('songs','readwrite');
+        tx.objectStore('songs').put(entry,clip.id);
+        tx.oncomplete=resolve;tx.onabort=()=>reject(tx.error);
+      });
+    }catch(error){console.warn('Could not refresh empty pitch map',error)}
+  }
+  return entries.map(playable);
+}
 function storeSong(db,id,entry){
   return new Promise((resolve,reject)=>{
     const tx=db.transaction('songs','readwrite');tx.objectStore('songs').add(entry,id);
@@ -50,7 +70,7 @@ async function analyze(buffer,start,end){
   const source=render.createBufferSource();source.buffer=buffer;source.connect(render.destination);source.start(0,start,end-start);
   const samples=(await render.startRendering()).getChannelData(0);
   return new Promise((resolve,reject)=>{
-    const worker=new Worker('pitch-worker.js');
+    const worker=new Worker('pitch-worker.js?v=2');
     worker.onmessage=e=>{worker.terminate();resolve(e.data)};
     worker.onerror=e=>{worker.terminate();reject(Error(e.message))};
     worker.postMessage(samples);
@@ -79,12 +99,15 @@ function notation(notes){
   }
   return images;
 }
+function makeNotes(events,id,start,end){
+  return events.map((e,i)=>({...e,id:id+':'+(i+1),index:i+1,start_s:start+e.start_s,end_s:Math.min(end,start+e.end_s),pitch:['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'][e.midi%12]+(Math.floor(e.midi/12)-1)}));
+}
 async function importBatch(files){
   const context=new AudioContext(),db=await dbReady,errors=[];
   try{
     for(const [i,file] of files.entries()){
       try{
-        announce('Preparing '+(i+1)+' of '+files.length+' · '+file.name);
+        announce('Preparing '+(i+1)+' of '+files.length+' Â· '+file.name);
         const bytes=await file.arrayBuffer();
         const id=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');
         if(clipMap.has(id))continue;
@@ -92,13 +115,13 @@ async function importBatch(files){
         if(existing){clips.push(playable(existing));clipMap.set(id,clips.at(-1));continue}
         const buffer=await context.decodeAudioData(bytes);
         const {start,end}=chooseWindow(buffer,id),events=await analyze(buffer,start,end);
-        const notes=events.map((e,i)=>({...e,id:id+':'+(i+1),index:i+1,start_s:start+e.start_s,end_s:Math.min(end,start+e.end_s),pitch:['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'][e.midi%12]+(Math.floor(e.midi/12)-1)}));
-        const clip={id,song_id:id,title:file.name.replace(/\.[^.]+$/,''),start_s:start,end_s:end,notes,images:notation(notes),source_hashes:{audio_sha256:id},score_role:'Estimated pitch map',alignment_note:'Note spacing is schematic. Check pitch, attacks and instrumental sounds by ear.'};
+        const notes=makeNotes(events,id,start,end);
+        const clip={pitchVersion:2,id,song_id:id,title:file.name.replace(/\.[^.]+$/,''),start_s:start,end_s:end,notes,images:notation(notes),source_hashes:{audio_sha256:id},score_role:'Estimated pitch map',alignment_note:'Note spacing is schematic. Check pitch, attacks and instrumental sounds by ear.'};
         const entry={file,clip,created:Date.now()};await storeSong(db,id,entry);clips.push(playable(entry));clipMap.set(id,clips.at(-1));
-      }catch(e){errors.push(file.name+' — '+e.message)}
+      }catch(e){errors.push(file.name+' â€” '+e.message)}
       render();
     }
-    $('overallCount').textContent=clips.length+' songs';announce(errors.join(' · '),!!errors.length);
+    $('overallCount').textContent=clips.length+' songs';announce(errors.join(' Â· '),!!errors.length);
   }finally{await context.close()}
 }
 $('songs').disabled=true;
