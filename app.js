@@ -228,6 +228,7 @@ async function attachScore(input,files,source){
     delete clip.writtenNotes;
     if(screenshots){
       clip.images=await screenshotPages(pages);
+      clip.pageHashes=await Promise.all(pages.map(async p=>Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",await p.arrayBuffer())),b=>b.toString(16).padStart(2,"0")).join("")));
       clip.alignment_note='Score screenshots in filename order · click the printed notes you hear in the loop.';
     }else if(pdf){
       clip.images=await pdfImages(file);
@@ -253,7 +254,7 @@ async function attachScore(input,files,source){
       await new Promise(resolve=>setTimeout(resolve,20));
       try{
         const decoder=new OfflineAudioContext(1,1,8000);
-        Object.assign(clip,await printedPassage(clip,await decoder.decodeAudioData(await entry.file.arrayBuffer()),id));
+        Object.assign(clip,await resolvePrintedPassage(clip,await decoder.decodeAudioData(await entry.file.arrayBuffer()),id));
       }catch(error){clip.alignment_note=error.message+' Mark printed notes manually.'}
     }
     const newEntry={...entry,created:Date.now(),clip};await saveSheet(newEntry);
@@ -332,7 +333,7 @@ async function anotherPassage(source){
   if(source.pdfReference){
     announce('Reading printed noteheads and matching the recording…');
     await new Promise(resolve=>setTimeout(resolve,20));
-    const clip=await printedPassage(entry.clip,buffer,id);
+    const clip=await resolvePrintedPassage(entry.clip,buffer,id);
     const next={...entry,created:Date.now(),clip};await storeSong(await dbReady,id,next);
     const live=playable(next);clips.push(live);clipMap.set(id,live);render();scrollToClip(live);announce('');return;
   }
