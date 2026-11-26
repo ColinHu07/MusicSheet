@@ -448,3 +448,31 @@ document.addEventListener('click',async event=>{
     delete state.records[id];changed();render();
   }catch(error){announce(error.message,true)}
 });
+
+function previewPastedLyrics(panel){
+  const card=panel.closest('[data-clip]');
+  const fields=Array.from(card.querySelectorAll('[data-field="syllable"]'));
+  let lyrics=panel.querySelector('[data-lyrics-paste]').value.normalize('NFC');
+  if(!panel.querySelector('[data-echoes]').checked)lyrics=lyrics.replace(/\([^()]*\)|（[^（）]*）/gu,' ');
+  const labels=lyrics.includes('|')?lyrics.split('|').map(label=>label.trim()):
+    lyrics.match(/[가-힣]|(?:(?![가-힣])[\p{L}\p{N}])+(?:['’](?:(?![가-힣])[\p{L}\p{N}])+)*/gu)||[];
+  const valid=labels.length===fields.length && labels.length>0 && labels.every(Boolean);
+  panel.querySelector('[data-assign]').disabled=!valid || fields.every(field=>field.value.trim());
+  panel.querySelector('[data-preview]').textContent=labels.length+' labels / '+fields.length+' notes. '+labels.map((label,i)=>(i+1)+' '+label).join(' · ');
+  return {fields,labels,valid};
+}
+document.addEventListener('input',event=>{
+  if(event.target.matches('[data-lyrics-paste],[data-echoes]'))previewPastedLyrics(event.target.closest('[data-bulk]'));
+});
+document.addEventListener('click',event=>{
+  if(!event.target.matches('[data-assign]'))return;
+  const panel=event.target.closest('[data-bulk]');
+  const {fields,labels,valid}=previewPastedLyrics(panel);
+  if(!valid)return;
+  fields.forEach((field,i)=>{
+    if(field.value.trim())return;
+    field.value=labels[i];
+    field.dispatchEvent(new Event('input',{bubbles:true}));
+  });
+  previewPastedLyrics(panel);
+});
