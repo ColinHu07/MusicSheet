@@ -43,7 +43,18 @@ async function readPrintedPage(page,pageIndex){
         const hollow=ink(x-.33*d,y-.12*d)&&ink(x+.33*d,y+.12*d)
           &&ink(x-.19*d,y-.34*d)&&ink(x+.19*d,y+.34*d)
           &&!ink(x-.16*d,y+.15*d)&&!ink(x+.16*d,y-.15*d);
-        if((inside>=5||hollow)&&outside>=4&&flankSpace===4){
+        // A flat has an ascending stroke on its left edge. A conventional
+        // notehead's ascending stem is on the right, even in a key signature area.
+        let flatStroke=false;
+        if(x-left<16*d){
+          for(let dx=.18;dx<=.7;dx+=.05){
+            let inkRows=0;
+            for(let k=0;k<9;k++)if(ink(x-dx*d,y-(.72+k*.13)*d))inkRows++;
+            if(inkRows>=8){flatStroke=true;break}
+          }
+        }
+        if(flatStroke)continue;
+        if((inside>=5||hollow)&&outside>=3&&flankSpace>=3){
           let stem=false;
           for(const side of [-1,1])for(let dx=.36;dx<=.74;dx+=.08){
             let hits=0;for(let k=0;k<5;k++)if(pixels[4*(Math.round(y-side*(.72+.29*k)*d)*w+Math.round(x+side*dx*d))]<205)hits++;
@@ -52,7 +63,7 @@ async function readPrintedPage(page,pageIndex){
               const sy=y-side*reach*d,sx=x+side*dx*d;
               if(!ink(sx-.22*d,sy)&&!ink(sx+.22*d,sy))thin++;
             }
-            if(thin>=2 && hits>=4 && !ink(x+side*dx*d,y+side*.86*d)
+            if(thin>=2 && hits>=4 && (inside>=5 || !ink(x+side*dx*d,y+side*.86*d)) 
                 && pixels[4*(Math.round(y-side*2.3*d)*w+Math.round(x+side*dx*d))]<205)stem=true;
           }
           if(stem)candidates.push({x,y,step,hollow,quality:outside+Number(ink(x-.49*d,y+.18*d))+Number(ink(x+.49*d,y-.18*d))});
@@ -60,7 +71,24 @@ async function readPrintedPage(page,pageIndex){
       }
     }
     const heads=[];
-    for(const n of candidates.sort((a,b)=>b.quality-a.quality))if(!heads.some(o=>Math.abs(o.x-n.x)<.88*d))heads.push(n);
+    // Learn the shape of the filled notehead from this staff's engraving.
+    // Ignore pixels on staff lines; ties may touch the head from either side.
+    const exemplars=[];
+    for(const n of candidates.slice().sort((a,b)=>b.quality-a.quality)){
+      if(!n.hollow && !exemplars.some(o=>Math.abs(o.x-n.x)<d))exemplars.push(n);
+    }
+    const samples=[];
+    for(let v=-5;v<=5;v++)for(let u=-8;u<=8;u++){
+      if(v===0 || Math.abs(v)===5)continue;
+      const dx=u*d/10,dy=v*d/10;
+      const fraction=exemplars.reduce((sum,n)=>sum+Number(ink(n.x+dx,n.y+dy)),0)/Math.max(1,exemplars.length);
+      if(fraction>=.75 || fraction<=.25)samples.push({dx,dy,dark:fraction>=.75});
+    }
+    for(const n of candidates){
+      const agree=samples.reduce((sum,s)=>sum+Number(ink(n.x+s.dx,n.y+s.dy)===s.dark),0);
+      n.shape=agree/Math.max(1,samples.length);
+    }
+    for(const n of candidates.filter(n=>n.hollow || exemplars.length<4 || n.shape>=.82).sort((a,b)=>(b.shape-a.shape)*50+b.quality-a.quality))if(!heads.some(o=>Math.abs(o.x-n.x)<.88*d))heads.push(n);
     heads.sort((a,b)=>a.x-b.x);
     if(heads.length)systems.push({pageIndex,top,d,bars,heads,canvas});
   }
