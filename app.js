@@ -220,10 +220,6 @@ async function attachScore(input,files,source){
       bytes=digests;
     }
     const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');
-    if(new URLSearchParams(location.search).get('annotator')==='original'){
-      location.assign(originalAnnotatorURL(source.song_id,hash));
-      return;
-    }
     const id=source.id+'-'+hash+'-'+offset;
     if(clipMap.has(id)){scrollToClip(clipMap.get(id));return}
     const entry=await dbGet('songs',source.id);
