@@ -366,3 +366,28 @@ document.addEventListener('click',async event=>{
     else await deleteSong(clipMap.get(button.dataset.deleteSong));
   }catch(error){announce(error.message,true)}finally{button.disabled=false}
 });
+
+document.addEventListener('click',async event=>{
+  const button=event.target.closest('[data-picker]');
+  if(!button)return;
+  const input=button.parentElement.querySelector('#scoreFirst,[data-sheet]');
+  const images=button.dataset.picker==='images';
+  input.accept=images?'.png,.jpg,.jpeg,.webp':'.pdf,.xml,.musicxml';
+  input.multiple=images;
+  if(!window.showOpenFilePicker){input.click();return}
+  try{
+    const handles=await window.showOpenFilePicker({
+      id:images?'score-screenshots':'score-documents',
+      startIn:images?'pictures':'downloads',
+      multiple:images,
+      types:images?[{description:'Score screenshots',accept:{'image/png':['.png'],'image/jpeg':['.jpg','.jpeg'],'image/webp':['.webp']}}]:
+        [{description:'PDF or MusicXML score',accept:{'application/pdf':['.pdf'],'application/xml':['.xml','.musicxml']}}]
+    });
+    const selected=new DataTransfer();
+    for(const handle of handles)selected.items.add(await handle.getFile());
+    input.files=selected.files;
+    input.dispatchEvent(new Event('change',{bubbles:true}));
+  }catch(error){
+    if(error.name!=='AbortError')input.click();
+  }
+});
