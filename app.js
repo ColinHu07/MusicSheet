@@ -186,19 +186,50 @@ async function pdfImages(file){
   }finally{await pdf.destroy()}
   return images;
 }
-async function attachScore(input,file,source){
+async function screenshotPages(files){
+  const pages=[];
+  for(const file of files){
+    const url=await new Promise((resolve,reject)=>{
+      const reader=new FileReader();
+      reader.onload=()=>resolve(reader.result);
+      reader.onerror=()=>reject(Error('Could not read '+file.name));
+      reader.readAsDataURL(file);
+    });
+    const image=new Image();
+    image.src=url;
+    await image.decode();
+    pages.push({width:image.naturalWidth,height:image.naturalHeight,url,notes:[]});
+  }
+  return pages;
+}
+async function attachScore(input,files,source){
   input.disabled=true;
   try{
     const offset=Number(input.closest('.row').querySelector('[data-offset]').value);
     if(!Number.isFinite(offset))throw Error('Enter the score start time in seconds.');
-    const bytes=await file.arrayBuffer();
+    const pages=Array.from(files).sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
+    const file=pages[0], screenshots=pages.every(page=>/\.(png|jpe?g|webp)$/i.test(page.name));
+    if(pages.length>1 && !screenshots)throw Error('Choose one score document or a group of screenshot pages.');
+    let bytes=await file.arrayBuffer();
+    if(pages.length>1){
+      const digests=new Uint8Array(32*pages.length);
+      for(const [index,page] of pages.entries()){
+        const digest=await crypto.subtle.digest('SHA-256',await page.arrayBuffer());
+        digests.set(new Uint8Array(digest),32*index);
+      }
+      bytes=digests;
+    }
     const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');
     const id=source.id+'-'+hash+'-'+offset;
     if(clipMap.has(id)){scrollToClip(clipMap.get(id));return}
     const entry=await dbGet('songs',source.song_id);
     const pdf=/\.pdf$/i.test(file.name);
-    const clip={...source,id,notes:[],pdfReference:pdf,pitchVersion:3,score_role:file.name,source_hashes:{...entry.clip.source_hashes,score_sha256:hash}};
-    if(pdf){
+    const clip={...source,id,notes:[],pdfReference:pdf||screenshots,pitchVersion:3,score_role:file.name,source_hashes:{...entry.clip.source_hashes,score_sha256:hash}};
+    delete clip.writtenNotes;
+    if(screenshots){
+      clip.images=await screenshotPages(pages);
+      clip.alignment_note='Score screenshots in filename order · click the printed notes you hear in the loop.';
+    }else if(pdf){
       clip.images=await pdfImages(file);
       clip.alignment_note='Original PDF · select the printed notes you hear in the loop.';
     }else{
@@ -222,7 +253,7 @@ async function attachScore(input,file,source){
 }
 document.addEventListener('change',event=>{
   const input=event.target;
-  if(input.matches('[data-sheet]') && input.files.length)attachScore(input,input.files[0],clipMap.get(input.dataset.sheet));
+  if(input.matches('[data-sheet]') && input.files.length)attachScore(input,input.files,clipMap.get(input.dataset.sheet));
 });
 $('scoreFirst').onchange=()=>{
   const file=$('scoreFirst').files[0];
@@ -230,8 +261,8 @@ $('scoreFirst').onchange=()=>{
   if(file)announce('Choose the matching recording for '+file.name);
 };
 $('pairSong').onchange=async()=>{
-  const song=$('pairSong').files[0],sheet=$('scoreFirst').files[0];
-  if(!song||!sheet)return;
+  const song=$('pairSong').files[0],sheet=$('scoreFirst').files;
+  if(!song||!sheet.length)return;
   $('pairSong').disabled=$('scoreFirst').disabled=true;
   try{
     const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',await song.arrayBuffer())),b=>b.toString(16).padStart(2,'0')).join('');
