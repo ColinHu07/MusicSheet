@@ -1,24 +1,27 @@
 // Read single treble staves from printed pages. Positions stay in original image pixels.
 // Match a shallow curved ink stroke between adjacent heads at the same staff position.
-function printedTie(left,right,d,ink){
+function printedTie(left,right,d,ink,top){
   if(left.step!==right.step || right.x-left.x<1.4*d)return false;
   const span=right.x-left.x;
   for(const side of [-1,1]){
     // Fit both shoulders and the crown. A beam or staff line has no crown.
     for(let shoulder=.38;shoulder<=1.3;shoulder+=.09){
       for(let rise=.32;rise<=1.26;rise+=.09){
-        let hits=0,clear=0,shoulders=0,crown=0;
+        let hits=0,clear=0,shoulders=0,crown=0,offStaff=0;
         for(let i=0;i<=16;i++){
           const inset=span<2.3*d?.35*d:.22*d;
           const t=i/16,x=left.x+inset+t*(span-2*inset);
           const y=left.y+side*d*(shoulder+4*t*(1-t)*rise);
-          if(![-.07,0,.07].some(offset=>ink(x,y+offset*d)))continue;
+          const stroke=[-.07,0,.07].map(offset=>y+offset*d).filter(py=>ink(x,py));
+          if(!stroke.length)continue;
+          // Flat staff ink can satisfy a shallow arc fit after pixel rounding.
+          if(stroke.some(py=>Array.from({length:5},(_,k)=>top+k*d).every(line=>Math.abs(Math.round(py)-line)>Math.max(1,d*.14))))offStaff++;
           hits++;
           if(!ink(x,y-.30*d)&&!ink(x,y+.30*d))clear++;
           if(i<=3||i>=13)shoulders++;
           if(i>=6&&i<=10)crown++;
         }
-        if(hits>=15 && clear>=10 && shoulders>=6 && crown>=4)return true;
+        if(offStaff>=5 && hits>=15 && clear>=10 && shoulders>=6 && crown>=4)return true;
       }
     }
   }
@@ -140,7 +143,7 @@ async function readPrintedPage(page,pageIndex){
     }
     for(const n of candidates.filter(n=>n.hollow || exemplars.length<4 || n.shape>=.82).sort((a,b)=>(b.shape-a.shape)*50+b.quality-a.quality))if(!heads.some(o=>Math.abs(o.x-n.x)<.88*d))heads.push(n);
     heads.sort((a,b)=>a.x-b.x);
-    for(let j=1;j<heads.length;j++)heads[j].tied=printedTie(heads[j-1],heads[j],d,ink);
+    for(let j=1;j<heads.length;j++)heads[j].tied=printedTie(heads[j-1],heads[j],d,ink,top);
     if(heads.length)systems.push({pageIndex,top,d,bars,heads,canvas});
   }
   return systems;

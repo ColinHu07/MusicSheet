@@ -563,3 +563,30 @@ document.addEventListener('click',async event=>{
     render();announce('Tied heads grouped. Original annotations retained.');
   }catch(error){announce(error.message,true)}finally{button.disabled=false}
 });
+
+function canSeparatePair(clip,note){
+  return clip.pdfReference && clip.fullScorePages && !clip.originalKeys && !note.tiedSourceNotes &&
+    note.end_s>note.start_s && clip.images.flatMap(image=>image.notes).filter(pin=>pin.id===note.id).length===2;
+}
+document.addEventListener('click',async event=>{
+  const button=event.target.closest('[data-separate]');
+  if(!button)return;
+  button.disabled=true;
+  try{
+    const clip=clipMap.get(button.closest('[data-clip]').dataset.clip);
+    const entry=await dbGet('songs',clip.id),draft=entry.clip;
+    const i=draft.notes.findIndex(n=>n.id===button.dataset.separate),first=draft.notes[i];
+    if(!first || !canSeparatePair(draft,first))throw Error('This pair has already changed. Reload the notebook.');
+    const pins=draft.images.flatMap(image=>image.notes).filter(pin=>pin.id===first.id);
+    // Older raster imports kept the last grouped attack in end_s.
+    const second={id:crypto.randomUUID(),start_s:first.end_s,end_s:first.end_s,pitch:first.pitch};
+    first.end_s=first.start_s;
+    pins[1].id=second.id;
+    draft.notes.splice(i+1,0,second);
+    const numbers=new Map(draft.notes.map((n,j)=>[n.id,n.index=j+1]));
+    for(const image of draft.images)for(const pin of image.notes)pin.number=numbers.get(pin.id);
+    await saveSheet(entry);
+    Object.assign(clip,{images:draft.images,notes:draft.notes});
+    render();selectNote(second.id);announce('Separated into two notes. The second head is ready to label.');
+  }catch(error){announce(error.message,true)}finally{button.disabled=false}
+});
